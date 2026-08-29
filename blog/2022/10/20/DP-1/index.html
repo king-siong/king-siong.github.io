@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      DP Problemset #1
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="DP Problemset #1" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="2019-2020 ICPC SEERC B.Level Up" />
+<meta name="twitter:description" property="og:description" content="2019-2020 ICPC SEERC B.Level Up" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-10-20T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-10-20T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="DP Problemset #1" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2022-10-20T00:00:00+00:00","datePublished":"2022-10-20T00:00:00+00:00","description":"2019-2020 ICPC SEERC B.Level Up","headline":"DP Problemset #1","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2022/10/20/DP-1/"},"url":"/blog/2022/10/20/DP-1/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">DP Problemset #1</div>
+    
+    <p class="post-meta">
+        <time datetime="2022-10-20 00:00:00 +0000">October 20, 2022</time>
+    </p>
+    
+    <ul>
+  <li><a href="https://codeforces.com/gym/102392/problem/B">2019-2020 ICPC SEERC B.Level Up</a></li>
+</ul>
+
+<p>用 $f[i][s][t]$ 表示考慮至第 $i$ 個選項，当前第一關經驗為 $s$，第二關經驗為 $t$ 的最小時間。但由於一旦 $s$ 超過 $s_1$ 將不能使用 $x_i,t_i$，則需枚舉最後的數，變為 $O(n^4)$，不可取。註意到，當某個 $x_i$ 加入使 $s\geq s_1$ 時，一定可以重調 $x$ 的順序使最大的 $x_{i’}$ 放到最後，所以祗需將 $x_i$ 從小至大排好序而後再 dp 即可考慮到所有情況。</p>
+
+<p>複雜度：$O(n^3)$。</p>
+
+<ul>
+  <li><a href="https://pintia.cn/problem-sets/1571150153619189760/exam/problems/1571150314621562891">2022 ICPC Online Contest I. LCS-like Problem</a></li>
+</ul>
+
+<p>為防 pta 搞事，簡述下題意。$s$ 的一個子序列 $s’$ 若合法，則 $\vert LCS(s’,t)\vert\leq 1$，最小化 $s’$ 的長度，輸出此長。$\vert s\vert,\vert t\vert\leq 10^5$。</p>
+
+<p>由於最長公共子序列長度不能超過 $1$，故對於 $t[i],t[j]$ 滿足 $j&lt;i$ 則 $t[i]t[j]$ 不能做為子序列出現在 $s’$ 中。故依此根据 $t$ 建一張有向圖，每個結點表示字符集中的一個字符，且若 $u\rightarrow v$，則表示 $u$ 后能接 $v$。可以發現除掉自環後遮是一個有向無環圖。此時考慮狀態 $f[i][c]$ 表示當前考慮到 $s[i]$，有向圖中的 $c$ 字符的最大公共子序列，利用類似於序列最大子序列的求解方法求解，但注意到 $c$ 的前繼結點個數是 $O(\vert\Sigma\vert)$ 的，故複雜度為 $O(n\vert\Sigma\vert^2)$，會時間超限。換一個角度想，遮個有向圖可以理解為一個 DFA，每輸入一個字符可以使某些狀態發生轉移，且其等價類為末尾字符相同的序列，而本題祗要求長度最大的，故祗保留最大的就行了。即用 $f[i][c]$ 表示當前考慮到 $s[i]$，以 $c$ 結尾的最長合法子序列的長度即可。</p>
+
+<p>複雜度：$O(n\vert\Sigma\vert)$。</p>
+
+<ul>
+  <li><a href="https://pintia.cn/problem-sets/1574060137151397888/exam/problems/1574060247893606401">2022 ICPC Online Contest B.Non-decreasing Array</a></li>
+</ul>
+
+<p>每次操作相當於删去兩個數，考慮狀態 $f[i][k]$ 為考慮到第 $i$ 個點，至多删了 $k$ 個數的最大平方和。答案為 $f[n][2,4,\ldots,2n]$。</p>
+
+<p>複雜度：$O(n^3)$。</p>
+
+<ul>
+  <li><a href="https://codeforces.com/gym/102769/problem/K">2020 China Collegiate Programming Contest Qinhuangdao Site: K.Kingdom’s Power</a></li>
+</ul>
+
+<p>很容易想用樹形 dp 解決，但狀態如何表示更為合適？若用 $f[root]$ 表示根节點开始占領整棵樹的答案，發現 $f[u] (u\neq root)$ 時與此有所不同，因為 $u$ 上没有士兵。所以理論上需有狀態 $f[u][i]$ 用於表示 $u$ 上有 $i$ 个士兵進行該樹占領的最少時間，但遮樣難免 TLE。注意到遮樣一件事，如果一子樹里有過兩個士兵及以上，則没必要擴散到其外的結点，遮是因為當某個士兵至某個深度為 $d_1$ 的結点  $v_1$ 時，此時樹上還有深度為 $d_2$ 的結點 $v_2$ 是通過新派的士兵完成占領的，那么有：</p>
+
+\[dep(v_1)-dep(lca(v_1,v_2))\geq dep(lca(v_1,v_2))-dep(root)\]
+
+<p>而 $dep(lca(v_1,v_2))\geq dep(u)$，故士兵不出必此子樹。所以 $i\leq 1$ 即可，且 $u$ 上至少有過一個士兵，故 $f[u]$ 表示 $u$ 上有一個士兵時，占領此樹的最短時間。轉移考慮每個子結點 $v$ 是否將其中的士兵回溯，還是從根結點重調一個士兵，遮需要深度比較，可以發現 $v$ 中可回溯的士兵必在深度最深的位置。需注意最後一個处理的 $v$ 是可不回溯的，故可長鏈剖分，但是其實轉移時最後扣掉最大的貢獻就行了。</p>
+
+<p>複雜度：$O(\sum n)$。</p>
+
+<ul>
+  <li><a href="https://codeforces.com/gym/104008/problem/B">2022 CCPC Guilin Site B.Code With No Forces</a></li>
+</ul>
+
+<p>可以發現就是有的測試會使一些點達到最後期的狀態，所以使用 $f[S]$ 來表示當前達到了狀態 $S$ 需要的最少測試點數。由於狀態一旦滿足便一不可撤銷，故無需考慮重復。對於新加一個測試點，已經是 WA 等的狀態不再有影響，其余對用時即時耗進行更新，且不能超過最後的最大值。簡單 DP 為 $O(nm2^{3m})$，會 TLE。考慮兩種情況：</p>
+
+<ol>
+  <li>若最後為 WA 等的程序，達到 WA 時間空間卻未達期望，不會有貢獻；</li>
+  <li>對當前狀態，若最後為 WA 的還未達 WA，則時間空間超限均不行，其它非 OK 狀態亦不可，可提前處理判斷。</li>
+</ol>
+
+<p>複雜度：$O((n+m)2^{3m})$。</p>
+
+<ul>
+  <li><a href="https://codeforces.com/gym/103990/problem/G">2022 ICPC Taiwan Online G.Geekflix</a></li>
+</ul>
+
+<p>注意到不可能轉圈，DP 頭至尾的 $f[i][j]$ 表示最後在 $i$，用了 $j$ 次按鈕的最大得分，以及由尾至頭的 $g[i][j]$。接著考慮哪一邊被走過兩次，之後能操作的次數就固定了，遮時兩邊分別枚舉用了幾次即可。</p>
+
+<p>複雜度：$O(nm^2+n^2m)$。</p>
+
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

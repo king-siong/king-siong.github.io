@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      SDN Exp #1
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="SDN Exp #1" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="第一次實験任務在於完成在仅有四個結點的 1969 年 ARPANET 網絡中的自學習交換機以及解決網絡中環路引起的ARP廣播風暴。實験通過 Mininet 構建網絡拓扑，Ryu app 編程實現控制器。" />
+<meta name="twitter:description" property="og:description" content="第一次實験任務在於完成在仅有四個結點的 1969 年 ARPANET 網絡中的自學習交換機以及解決網絡中環路引起的ARP廣播風暴。實験通過 Mininet 構建網絡拓扑，Ryu app 編程實現控制器。" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-04-09T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-04-09T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="SDN Exp #1" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2022-04-09T00:00:00+00:00","datePublished":"2022-04-09T00:00:00+00:00","description":"第一次實験任務在於完成在仅有四個結點的 1969 年 ARPANET 網絡中的自學習交換機以及解決網絡中環路引起的ARP廣播風暴。實験通過 Mininet 構建網絡拓扑，Ryu app 編程實現控制器。","headline":"SDN Exp #1","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2022/04/09/SDN-exp-1/"},"url":"/blog/2022/04/09/SDN-exp-1/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">SDN Exp #1</div>
+    
+    <p class="post-meta">
+        <time datetime="2022-04-09 00:00:00 +0000">April  9, 2022</time>
+    </p>
+    
+    <p>第一次實験任務在於完成在仅有四個結點的 1969 年 ARPANET 網絡中的<strong>自學習交換機</strong>以及解決網絡中環路引起的<strong>ARP廣播風暴</strong>。實験通過 <code class="language-plaintext highlighter-rouge">Mininet</code> 構建網絡拓扑，<code class="language-plaintext highlighter-rouge">Ryu app</code> 編程實現控制器。</p>
+
+<h1 id="自學習交換機">自學習交換機</h1>
+
+<p>正如 RIP 協議一般，此處交換機轉發數據包必須依據一定的規則，否則祇使用洪泛的方式將產生許多不必要的數據包，浪費帶寛。本實験的實現也非常容易，其思想在於對於每個到達的數據包，交換機都根據該包的源地址 $src$ 學習，若下次有目的地為 $src$ 的數據包就能直接通過此次記錄的端口進行發送。</p>
+
+<p>但是需要注意的是，SDN 網絡不同於 RIP，對於每次非洪泛發包需要更新<strong>流表</strong>。因為在 SDN 中，數據包通過在流表中進行匹配而確定轉發規則，若匹配失敗，需要向控制器發送一個名為 <code class="language-plaintext highlighter-rouge">packet-in</code> 的信息請求控制器來處理當前包。</p>
+
+<p>在 <code class="language-plaintext highlighter-rouge">packet_in_handler()</code> 中實現如下：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@set_ev_cls</span><span class="p">(</span><span class="n">ofp_event</span><span class="p">.</span><span class="n">EventOFPPacketIn</span><span class="p">,</span> <span class="n">MAIN_DISPATCHER</span><span class="p">)</span> 
+<span class="k">def</span> <span class="nf">packet_in_handler</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">):</span> 
+	<span class="n">msg</span> <span class="o">=</span> <span class="n">ev</span><span class="p">.</span><span class="n">msg</span> 
+    <span class="n">dp</span> <span class="o">=</span> <span class="n">msg</span><span class="p">.</span><span class="n">datapath</span> 
+    <span class="n">ofp</span> <span class="o">=</span> <span class="n">dp</span><span class="p">.</span><span class="n">ofproto</span> 
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">dp</span><span class="p">.</span><span class="n">ofproto_parser</span> 
+
+    <span class="c1"># the identity of switch 
+</span>    <span class="n">dpid</span> <span class="o">=</span> <span class="n">dp</span><span class="p">.</span><span class="nb">id</span> 
+    <span class="n">self</span><span class="p">.</span><span class="n">mac_to_port</span><span class="p">.</span><span class="nf">setdefault</span><span class="p">(</span><span class="n">dpid</span><span class="p">,{})</span> 
+    <span class="c1"># the port that receive the packet 
+</span>    <span class="n">in_port</span> <span class="o">=</span> <span class="n">msg</span><span class="p">.</span><span class="k">match</span><span class="p">[</span><span class="sh">'</span><span class="s">in_port</span><span class="sh">'</span><span class="p">]</span>
+    <span class="n">pkt</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nc">Packet</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">data</span><span class="p">)</span> 
+    <span class="n">eth_pkt</span> <span class="o">=</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">get_protocol</span><span class="p">(</span><span class="n">ethernet</span><span class="p">.</span><span class="n">ethernet</span><span class="p">)</span> 
+    <span class="c1"># get the mac 
+</span>    <span class="n">dst</span> <span class="o">=</span> <span class="n">eth_pkt</span><span class="p">.</span><span class="n">dst</span> 
+    <span class="n">src</span> <span class="o">=</span> <span class="n">eth_pkt</span><span class="p">.</span><span class="n">src</span> 
+    <span class="c1"># we can use the logger to print some useful information 
+</span>    <span class="n">self</span><span class="p">.</span><span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">'</span><span class="s">packet: %s %s %s %s</span><span class="sh">'</span><span class="p">,</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">in_port</span><span class="p">)</span>
+
+    <span class="c1"># you need to code here to avoid the direct flooding 
+</span>    <span class="c1"># having fun 
+</span>    <span class="c1"># :)
+</span>    <span class="n">self</span><span class="p">.</span><span class="n">mac_to_port</span><span class="p">[</span><span class="n">dpid</span><span class="p">][</span><span class="n">src</span><span class="p">]</span> <span class="o">=</span> <span class="n">in_port</span>
+    <span class="k">if</span> <span class="n">dst</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">mac_to_port</span><span class="p">[</span><span class="n">dpid</span><span class="p">]:</span>
+        <span class="c1"># out_port = ofp.OFPP_FLOOD
+</span>        <span class="n">out_port</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">mac_to_port</span><span class="p">[</span><span class="n">dpid</span><span class="p">][</span><span class="n">dst</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">out_port</span> <span class="o">=</span> <span class="n">ofp</span><span class="p">.</span><span class="n">OFPP_FLOOD</span>
+    
+    <span class="k">if</span> <span class="n">out_port</span> <span class="o">!=</span> <span class="n">ofp</span><span class="p">.</span><span class="n">OFPP_FLOOD</span><span class="p">:</span>
+		<span class="n">match</span> <span class="o">=</span> <span class="n">parser</span><span class="p">.</span><span class="nc">OFPMatch</span><span class="p">(</span><span class="n">in_port</span><span class="o">=</span><span class="n">in_port</span><span class="p">,</span> <span class="n">eth_dst</span><span class="o">=</span><span class="n">dst</span><span class="p">)</span>
+    	<span class="n">self</span><span class="p">.</span><span class="nf">add_flow</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">actions</span><span class="p">)</span>
+
+	<span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+	<span class="k">if</span> <span class="n">msg</span><span class="p">.</span><span class="n">buffer_id</span> <span class="o">==</span> <span class="n">ofp</span><span class="p">.</span><span class="n">OFP_NO_BUFFER</span><span class="p">:</span>
+  		<span class="n">data</span> <span class="o">=</span> <span class="n">msg</span><span class="p">.</span><span class="n">data</span>
+
+	<span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">dp</span><span class="p">.</span><span class="n">ofproto_parser</span><span class="p">.</span><span class="nc">OFPActionOutput</span><span class="p">(</span><span class="n">out_port</span><span class="p">)]</span>
+
+	<span class="n">out</span> <span class="o">=</span> <span class="n">dp</span><span class="p">.</span><span class="n">ofproto_parser</span><span class="p">.</span><span class="nc">OFPPacketOut</span><span class="p">(</span><span class="n">datapath</span><span class="o">=</span><span class="n">dp</span><span class="p">,</span> <span class="n">buffer_id</span><span class="o">=</span><span class="n">msg</span><span class="p">.</span><span class="n">buffer_id</span><span class="p">,</span> <span class="n">in_port</span><span class="o">=</span><span class="n">in_port</span><span class="p">,</span> <span class="n">actions</span><span class="o">=</span><span class="n">actions</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">msg</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
+
+	<span class="n">dp</span><span class="p">.</span><span class="nf">send_msg</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>正如上方所示，我需要補充的實際也祇有 <code class="language-plaintext highlighter-rouge">TODO</code> 部分。</p>
+
+<h1 id="廣播風暴問題">廣播風暴問題</h1>
+
+<p>問题在於拓扑中出現了環路，而這將導致廣播的 ARP 請求包肆虐無度。指導書中提到了傳統的<strong>生成樹協議</strong>，並給出一種待實現的策略：強制使某个源主機發出的 ARP 請求包仅能由交換機的某個特定端口接收（例如：首次由洪泛接收的端口），稍微一想就能發現，對於特定的 ARP 請求包，其在拓扑中能傳播的途徑顯然構成了一棵生成樹，不過其不同於傳統的生成樹，在不同的數據包發出时會動熊生成可能不同的樹，魯棒性較強。</p>
+
+<p>實現如下：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="n">dst</span> <span class="o">==</span> <span class="n">ETHERNET_MULTICAST</span> <span class="ow">and</span> <span class="n">ARP</span> <span class="ow">in</span> <span class="n">header_list</span><span class="p">:</span>
+	<span class="c1"># you need to code here to avoid broadcast loop to finish mission 2
+</span>	<span class="n">self</span><span class="p">.</span><span class="n">sw</span><span class="p">.</span><span class="nf">setdefault</span><span class="p">((</span><span class="n">dpid</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">),</span> <span class="bp">None</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">sw</span><span class="p">.</span><span class="nf">get</span><span class="p">((</span><span class="n">dpid</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">))</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+    	<span class="n">self</span><span class="p">.</span><span class="n">sw</span><span class="p">[(</span><span class="n">dpid</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)]</span> <span class="o">=</span> <span class="n">in_port</span>
+	<span class="k">elif</span> <span class="n">self</span><span class="p">.</span><span class="n">sw</span><span class="p">[(</span><span class="n">dpid</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)]</span> <span class="o">!=</span> <span class="n">in_port</span><span class="p">:</span>
+    	<span class="k">return</span>
+</code></pre></div></div>
+
+<p>另外，實験附加題要求實現另一種方法。根據 ARP 緩存在相當長一段時間不會清除，可以對 ARP 數據包標記一个過期時間 <code class="language-plaintext highlighter-rouge">TIMEOUT</code>，在過期時間未到之時段，不在接收相同包。</p>
+
+<p>實現如下：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="n">dst</span> <span class="o">==</span> <span class="n">ETHERNET_MULTICAST</span> <span class="ow">and</span> <span class="n">ARP</span> <span class="ow">in</span> <span class="n">header_list</span><span class="p">:</span>
+    <span class="n">ticks</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">sw</span><span class="p">.</span><span class="nf">setdefault</span><span class="p">((</span><span class="n">dpid</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">sw</span><span class="p">[(</span><span class="n">dpid</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)]</span> <span class="o">&lt;</span> <span class="n">ticks</span><span class="p">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">sw</span><span class="p">[(</span><span class="n">dpid</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ticks</span> <span class="o">+</span> <span class="n">TIMEOUT</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span>
+</code></pre></div></div>
+
+<p>注意，這樣考慮基於網絡中不會發生丢包，若丢包發生，則源主機重發的有效包可能被拒收，直到記錄過期，是有概率降低效率的。</p>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+  <li><a href="https://en.wikipedia.org/wiki/Spanning_Tree_Protocol">STP(Spaning Tree Protocol)</a></li>
+  <li>
+    <p><a href="/document/SDN_exp_1.pdf">XJTU-SDN-EXP-1</a></p>
+  </li>
+  <li>Performance evaluation of OpenFlow-based software-defined networks based on queueing model</li>
+  <li><a href="https://osrg.github.io/ryu-book/zh_tw/html/switching_hub.html">RyuBook 1.0 說明文件</a></li>
+</ul>
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

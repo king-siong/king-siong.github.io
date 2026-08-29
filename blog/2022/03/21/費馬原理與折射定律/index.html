@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      費馬原理與折射定律
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="費馬原理與折射定律" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="首先思考這樣一個問題，這源於在前段時間進行的一場訓練：" />
+<meta name="twitter:description" property="og:description" content="首先思考這樣一個問題，這源於在前段時間進行的一場訓練：" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-21T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-03-21T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="費馬原理與折射定律" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2022-03-21T00:00:00+00:00","datePublished":"2022-03-21T00:00:00+00:00","description":"首先思考這樣一個問題，這源於在前段時間進行的一場訓練：","headline":"費馬原理與折射定律","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2022/03/21/%E8%B2%BB%E9%A6%AC%E5%8E%9F%E7%90%86%E8%88%87%E6%8A%98%E5%B0%84%E5%AE%9A%E5%BE%8B/"},"url":"/blog/2022/03/21/%E8%B2%BB%E9%A6%AC%E5%8E%9F%E7%90%86%E8%88%87%E6%8A%98%E5%B0%84%E5%AE%9A%E5%BE%8B/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">費馬原理與折射定律</div>
+    
+    <p class="post-meta">
+        <time datetime="2022-03-21 00:00:00 +0000">March 21, 2022</time>
+    </p>
+    
+    <p>首先思考這樣一個問題，這源於在前段時間進行的一場訓練：</p>
+
+<p>假設在一個矩形稻田中，$A，B$  分別在其左上角與右下角，並且在垂直方向距離 $A$ 點 $a$ 處有一水平分割線，此時一人欲從 $A$ 行至 $B$，但由於水平線上下方稻麥疏密不同導致他在上方行走速度爲 $v_1$ 而在下方行走速度爲 $v_2$。問其由 $A$ 行至 $B$ 花費最短時間為幾何。如下圖所示：</p>
+
+<p><img src="https://github.com/king-siong/images/raw/main//220321/fermat_snellius.png" style="width: 66.7%" /></p>
+
+<p>爲得到這個問題的解，可以設 $P$ 至 $a$ 所在垂直線的距離爲 $x$，那可得到時間代價爲：</p>
+
+\[t(x)=\frac{1}{v_1}\sqrt{x^2+a^2}+\frac{1}{v_2}\sqrt{(d-x)^2+b^2}\]
+
+<p>這顯然是一個關於 $x$ 的函數，於是進一步的對其求導得：</p>
+
+\[t'(x)=\frac{1}{v_1}\frac{x}{\sqrt{x^2+a^2}}-\frac{1}{v_2}\frac{d-x}{\sqrt{(d-x)^2+b^2}}\]
+
+<p>若進一步求導可以發現這是一個在 $(0,d)$ 單調增加的函數，並且由於 $t’(0)&lt;0$ 且 $t’(d)&gt;0$ 可知 $t’(x)$ 在 $(0,d)$ 上存在唯一零點 $x_0$。但若單純令 $t’(x)=0$ 將會發現問題會變爲求解一個四次方程。但注意到：</p>
+
+\[\frac{x}{\sqrt{x^2+a^2}}=\sin{\alpha},\frac{d-x}{\sqrt{(d-x)^2+b^2}}=\sin{\beta}\]
+
+<p>所以最优解將滿足條件：</p>
+
+\[\frac{\sin{\alpha}}{\sin{\beta}}=\frac{v_1}{v_2}\]
+
+<p>我們驚奇地發現，這其實就是折射定律（Snell’s Law）。而這樣證朙的思路其實是費馬原理：</p>
+
+<blockquote>
+  <p>Fermat’s principle states that the path taken by a ray between two given points is the path that can be traveled in the least time. <sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup></p>
+
+  <p>費馬原理表朙了光線在兩點之間傳播采用最短時間的路線。</p>
+</blockquote>
+
+<p>於是這個問題可以通過二分的方法解決，當然讀者會問，爲何要利用這個結論進行二分？直接二分 $x$ 不也很好？在此處確實如此，但當時遇到的問題稍微困難一些，矩形中有兩條水平線，此時若通过三分套二分的思路將會在評測中獲得 TLE 的好結果，正確做法應當是二分最初的「入射角」，通过 Snell’s Law 判斷是否會 「射」 到 $B$ 上，那就可在一个 $\log$ 下解決。</p>
+
+<hr data-content="腳註" />
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1">
+      <p>Wikipedia: <a href="https://en.wikipedia.org/wiki/Fermat%27s_principle">Fermat’s principle</a> <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

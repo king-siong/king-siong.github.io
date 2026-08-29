@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      Probabilistic DP Problemset #1
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Probabilistic DP Problemset #1" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="冷靜好好想，好好推。" />
+<meta name="twitter:description" property="og:description" content="冷靜好好想，好好推。" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-10-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-10-13T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Probabilistic DP Problemset #1" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2022-10-13T00:00:00+00:00","datePublished":"2022-10-13T00:00:00+00:00","description":"冷靜好好想，好好推。","headline":"Probabilistic DP Problemset #1","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2022/10/13/Probabilistic-DP-1/"},"url":"/blog/2022/10/13/Probabilistic-DP-1/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">Probabilistic DP Problemset #1</div>
+    
+    <p class="post-meta">
+        <time datetime="2022-10-13 00:00:00 +0000">October 13, 2022</time>
+    </p>
+    
+    <p>冷靜好好想，好好推。</p>
+
+<ul>
+  <li><a href="https://codeforces.com/problemset/problem/148/D">CF 148D. Bag of mice</a></li>
+</ul>
+
+<p>用狀態 $f[i][j][0/1]$ 表示當前剩有 $i$ 隻白鼠，$j$ 隻黑鼠時，princess 贏的概率（$0$ 表示當前為 princess’ s turn，$1$ 表示 dragon’s turn）。則有轉移：</p>
+
+\[f[i][j][0]=\frac{i}{i+j}+\frac{j}{i+j}\times f[i][j-1][1]\]
+
+\[f[i][j][1]=\frac{j}{i+j}\times(\frac{i}{i+j-1}f[i-1][j-1][0]+\frac{j-1}{i+j-1}f[i][j-2][0])\]
+
+<p>複雜度：$O(WB)$。</p>
+
+<ul>
+  <li><a href="https://codeforces.com/gym/103931/problem/I">2022 Shanghai Collegiate Programming Contest I. It Takes Two of Two</a></li>
+</ul>
+
+<p>對於當前某個狀態的期望 $f$，以及它能以概率 $p$ 轉移到另一狀態之期望 $g$，則有：</p>
+
+\[\begin{align*}
+&amp;f=1+pg+(1-p)f\\
+\Rightarrow &amp;f=g+\frac{1}{p}
+\end{align*}\]
+
+<p>注意到最後合法的狀態是若干個環以及長度為 $1$ 與孤立點至多一個，於是可用狀態 $f[i][j][k]$ 表示當前尚有 $i$ 個孤立點，$j$ 個長度為 $1$ 的鏈和 $k$ 個長度大於 $1$ 的長鏈。則有：</p>
+
+\[\begin{align*}
+f[i][j][k]&amp;=\frac{1}{p}+\sum_{i',j',k'}p_{i'j'k'}f[i'][j'][k']
+\end{align*}\]
+
+<p>$(i’,j’,k’)$ 為可轉移到的狀態。$p$ 為能轉移出去的概率，$p_{i’j’k’}$ 為轉移出去的情況是 $(i’,j’,k’)$ 的概率。</p>
+
+<p>複雜度：$O(n^3)$。</p>
+
+<ul>
+  <li><a href="https://ac.nowcoder.com/acm/contest/35232/D">2021 ICPC 陝西省賽 D.Disease</a></li>
+</ul>
+
+<p>由於期望是最低層產生的貢獻，故祇要考慮下至上的傳染。用 $f[u]$ 表示當前結點 $u$ 由其子樹或外界感染的概率。然後按最小層數考慮統計答案，在第 $d$ 層，產生的貢獻的情況為：上層全不被外界感染且第 $(d-1)$ 層不被 $d$ 層結點感染且 $d$ 層結點至少有一個被感染。</p>
+
+<p>複雜度：$O(n+\max\lbrace q,b\rbrace)$ 或 $O(n\log \max\lbrace q,b\rbrace)$。</p>
+
+<ul>
+  <li><a href="https://codeforces.com/gym/102994/problem/G">Moscow Pre-Finals Workshop 2020 - Legilimens+Coffee Chicken Contest (GP of Nanjing) G.Blackjack</a></li>
+</ul>
+
+<p>用狀態 $f[i][j][k]$ 表示考慮至第 $i$ 張牌，當前選擇了 $j$ 張牌，總和為 $k$ 的概率，則有：</p>
+
+\[f[i][j][k]=f[i-1][j][k]+f[i-1][j-1][k-x[i]]\times\frac{j}{n-j+1}\]
+
+<p>但答案並非 $\sum{f[n][j][k],a&lt;k\leq b}$。會有重復，故需枚舉最後取了哪個數，可以將此數除去而後重做 dp，第 $i$ 張牌的貢獻為：</p>
+
+\[\sum f[n-1][j][k]\times\frac{1}{n-j}(k\leq a\wedge a&lt;k+x[i]\leq b)\]
+
+<p>但遮樣 $O(n^4)$ 的複雜度難免會獲得 TLE，故考慮從 $f[n][j][k]$ 中直接扣除 $i$ 的影響進行答案的統計。記 $g[i][j][k]$ 為最後選了 $j$ 張牌，和為 $k$ 且不含 $i$ 的概率，則有：</p>
+
+\[g[i][j][k]=f[n][j][k]-g[i][j-1][k-x[i]]\times\frac{j}{n-j+1}\]
+
+<p>遮樣最後的複雜度為： $O(n^3)$。</p>
+
+<ul>
+  <li><a href="https://codeforces.com/problemset/problem/768/D">CF 768 D.Jon and Orbs</a></li>
+</ul>
+
+<p>用狀態 $f[i][j]$ 表示過了 $i$ 天，選了 $j$ 個不同的 orbs 的概率，則有：</p>
+
+\[f[i][j]=f[i-1][j]\times\frac{j}{k}+f[i-1][j-1]\times\frac{k-j+1}{k}\]
+
+<p>複雜度，還不會證。</p>
+
+<p>若記 $p_{n}$ 為 $f[n][k]$，有：</p>
+
+\[p_{n}=\left((e^{x/k}-1)^{k}\right)^{(n)}\vert_{x=0}\]
+
+<p>不會算。</p>
+
+<ul>
+  <li><a href="https://atcoder.jp/contests/arc150/tasks/arc150_d">ARC 150 D.Removing Gacha</a></li>
+</ul>
+
+<p>人類智慧。考慮每个結點 $v$ 被選中的次數的期望 $E[X_v]$，答案為其和。對於某個 $v$，若選擇非 $v$ 至 $1$ 路径上的點都對其期望無影響，故可以轉換為鏈的情況進行考慮。接著可以發現 $v$ 前的點即使變為 good 再被選仍與 $E[X_v]$ 無關，祇需求每次可等概率選 $1,\ldots,n$，當 $1,\ldots, n$ 都被選上時，$n$ 被選中的次數的期望。簡單推導可以發現選完的期望為 $n\sum_{i=1}^{n}\frac{1}{i}$，由對稱性知 $E[n]=\sum_{i=1}^{n}\frac{1}{i}$，故預處理 $\frac{1}{i}$ 前綴和，而後 dfs 記录下每个點的深度即可。</p>
+
+<p>複雜度：$O(n\log n)$ 或 $O(n)$。</p>
+
+<ul>
+  <li><a href="https://onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=2424">UVA 11429 Randomness</a></li>
+</ul>
+
+<p>$k$ 次生成對於 $i$ 事件有 $D(i,k)$，有：</p>
+
+\[\frac{a_i}{b_i}=\sum_{k=1}^{\infty}\frac{D(i,k)}{R^k}(D(i,k)&lt;R)\]
+
+<p>將 $\frac{a_i}{b_i}$ 表示成 $R$ 進制的小數，第 $k$ 位即為 $D(i,k)$。$H(i)$ 為 $i$ 次生成未達終結情況的情況數，有：</p>
+
+\[E=\sum_{i=0}^{\infty}\frac{H(i)}{R^i}\]
+
+<p>$H(0)=1$，有遞推式：</p>
+
+\[H(i+1)=H(i)R-\sum_{j=1}^{N}D(j,i)\]
+
+<p>無窮級數收斂，求個 $50$ 次即可，但要注意精度問題。</p>
+
+<p>複雜度：$O(TNH)$。$H$ 為迭代計算次數。</p>
+
+<ul>
+  <li><a href="https://codeforces.com/contest/1754/problem/E">CF Round#829 div.2 E.Wish I Knew How to Sort</a></li>
+</ul>
+
+<p>用 $f[r]$ 表示最後的要放 $k$ 個 $1$ 的位置上 $0$ 的數目時，要使其變為 $0$ 的期望。則有：</p>
+
+\[f[r]=f[r-1]+C_{n}^2\frac{1}{r^2}\]
+
+<p>故答案為：$C_{n}^{2}\sum{\frac{1}{r^2}}$。</p>
+
+<p>複雜度：$O(N\log(N))$ 或 $O(N)$。</p>
+
+<ul>
+  <li><a href="https://ac.nowcoder.com/acm/contest/32708/G?&amp;headNav=acm">46th ICPC G.Glass Bead Game</a></li>
+</ul>
+
+<p>當 $m\to\infty$ 時，對於第 $i$ 個 bead 之前期望有 $cnt[i]$ 个 bead。那麼答案就是 $\sum_{i} cnt[i]\cdot p[i]$。而對於 $cnt[i]$，就是考慮其它數的貢獻即可。</p>
+
+<p>複雜度： $O(n^2)$。</p>
+
+<ul>
+  <li><a href="https://pintia.cn/problem-sets/1705510247604809728/exam/problems/1705514248467492872?type=7&amp;page=0">2023 ICPC 網絡預選賽 I Impatient Patient</a></li>
+</ul>
+
+<p>記 $f_i$ 為在第 $i$ 天的期望，很容易推出：</p>
+
+\[f_i=1+\min\{f_{i+1}, (1-p_i)f_{a_i}\}\]
+
+<p>然而，遮樣的遞推依賴前後狀態，無法線性遞推，但是註意到在某一最優決策下，第一次在 $k$ 使用 option 時，跳回之前狀態，仍會按照第一種轉移，故仍會依賴 $f_k$，故可推出：</p>
+
+\[f_k = \frac{1+(1-p_k)(k-a_k)}{p_k}\]
+
+<p>所以決策一定是祇到某一步使用 option，其他均由下一個狀態來轉移。</p>
+
+<p>故答案為枚舉使用 option 的位置得到每一种期望的最小值。</p>
+
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      CF EDU #167 E
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="CF EDU #167 E" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="昨天下午坐高鐵從上海回西安，何給我推薦了一道有趣的計數題。看了下，發現我其實和何一起打了遮場 EDU，但我卻完全沒有補題，真是慚愧。" />
+<meta name="twitter:description" property="og:description" content="昨天下午坐高鐵從上海回西安，何給我推薦了一道有趣的計數題。看了下，發現我其實和何一起打了遮場 EDU，但我卻完全沒有補題，真是慚愧。" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-07-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2024-07-13T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="CF EDU #167 E" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2024-07-13T00:00:00+00:00","datePublished":"2024-07-13T00:00:00+00:00","description":"昨天下午坐高鐵從上海回西安，何給我推薦了一道有趣的計數題。看了下，發現我其實和何一起打了遮場 EDU，但我卻完全沒有補題，真是慚愧。","headline":"CF EDU #167 E","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2024/07/13/Distance-to-Different/"},"url":"/blog/2024/07/13/Distance-to-Different/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">CF EDU #167 E</div>
+    
+    <p class="post-meta">
+        <time datetime="2024-07-13 00:00:00 +0000">July 13, 2024</time>
+    </p>
+    
+    <p>昨天下午坐高鐵從上海回西安，<u>何</u>給我推薦了一道有趣的<a href="https://codeforces.com/contest/1989/problem/E">計數題</a>。看了下，發現我其實和<u>何</u>一起打了遮場 EDU，但我卻完全沒有補題，真是慚愧。</p>
+
+<p>首先思考有哪些序列会是合法的 $b$，發現 $b$ 必然要满足下列的性質：</p>
+
+<ol>
+  <li>$1$ 不能單獨出現；</li>
+  <li>若有 $t, t&gt;1$ 出現，那麼一定存在 $x\geq t$，使得 $t$ 存在於 $[1,2,\ldots,x,x,\ldots,2,1]$ 或 $[1,2,\ldots,x,\ldots,2,1]$ 中。</li>
+</ol>
+
+<p>我們發現可以将原序列理解成一個個長度不同的塊，並且相鄰塊之間的數的具體值並不影響 $b$，也就是說我們可以僅用 $0,1$ 兩個數字構造出 $b$。換言之，對於滿足以上兩條性質的 $b$，總能够構造出來，所以祇要思考滿足性質的 $b$ 有幾種。可以發現，如果塊長大於 $2$，解釋祇能是連續的段；若塊長為 $2$，則對應在 $b$ 中的子串為 $[1,1]$，遮可以有兩種解釋：</p>
+
+<ol>
+  <li>兩個相同的數；</li>
+  <li>兩個不同的數。</li>
+</ol>
+
+<p>注意到題目還有一個限制，至少有 $k$ 種數字，也就是至少有 $k$ 個塊。於是我們可以把 $[1,1]$ 祇理解為兩個不同的數。為了計數，考慮狀態 $f(i,k)$ 表示當前總長為 $i$，至少有 $k$ 個塊，且沒有塊長為 $2$ 的情況數。答案為</p>
+
+\[f(n,k)+2f(n-2,k-1)+f(n-4,k-2),\]
+
+<p>且有如下轉移方程：</p>
+
+\[f(i,k)=\sum_{j=1}^{i}f(i-j,k-1) - f(i-2,k-1).\]
+
+<p>利用前綴和優化動態規劃，時間複雜度為 $O(nk)$。</p>
+
+<p>仔細觀察可以發現，每次迭代 $k$ 時的轉移都是相同的，其實是卷積。記 $f(i,k)$ 為多項式 $P^{(k)}(x)$ 中 $x^{i}$ 的系數，則有：</p>
+
+\[P^{(k+1)}(x)=P^{(k)}(x)\times (x^1+x^3+x^4+\ldots).\]
+
+<p>我們記</p>
+
+\[T(x)=x^1+x^3+x^4+\ldots,\]
+
+<p>則有：</p>
+
+\[P^{(k)}(x)=P^{(0)}(x)\times T^{k}(x),\]
+
+<p>其中，$P^{(0)}(x)$ 是初始的情況，也就是沒有 $k$ 的限制時的答案。滿足：</p>
+
+\[\begin{cases}
+f(i,0)=0,&amp;i&lt;0;\\
+f(i,0)=1,&amp;i=0;\\
+f(i,0)=\sum_{j=0}^{i-1}f(j,0)-f(i-2,0),&amp;\text{otherwise}.
+\end{cases}\]
+
+<p>遮是個線性遞推式，可以在 $O(n)$ 時間中計算出 $P^{(0)}(x)$ 的前 $(n+1)$ 項。所以答案可以通過快速傳立葉變換得出，時間複雜度為 $O(n\log n \log k)$。</p>
+
+<p>由於</p>
+
+\[\begin{align}
+T(x)&amp;=x+x^3+x^4+\ldots\\
+&amp;=\frac{x}{1-x}-x^2\\
+&amp;=x\frac{1-x+x^2}{1-x}\\
+&amp;=x\frac{1+x^3}{1-x^2}.
+\end{align}\]
+
+<p>或許有技巧能更快地計算答案。</p>
+
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

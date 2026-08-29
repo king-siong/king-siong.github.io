@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      工位電腦部署為服務器
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="工位電腦部署為服務器" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="現在住在創新港南區公寓，距離工位祇有一萬八千里。為了更好地工作学習（摸魚），於是將工位電腦部署為服務器。但能否推動生產力不是最關鍵，關鍵是要優雅！" />
+<meta name="twitter:description" property="og:description" content="現在住在創新港南區公寓，距離工位祇有一萬八千里。為了更好地工作学習（摸魚），於是將工位電腦部署為服務器。但能否推動生產力不是最關鍵，關鍵是要優雅！" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-09-27T00:00:00+00:00" />
+<meta property="article:modified_time" content="2023-09-27T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="工位電腦部署為服務器" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2023-09-27T00:00:00+00:00","datePublished":"2023-09-27T00:00:00+00:00","description":"現在住在創新港南區公寓，距離工位祇有一萬八千里。為了更好地工作学習（摸魚），於是將工位電腦部署為服務器。但能否推動生產力不是最關鍵，關鍵是要優雅！","headline":"工位電腦部署為服務器","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2023/09/27/Build-A-Server-At-School-log/"},"url":"/blog/2023/09/27/Build-A-Server-At-School-log/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">工位電腦部署為服務器</div>
+    
+    <p class="post-meta">
+        <time datetime="2023-09-27 00:00:00 +0000">September 27, 2023</time>
+    </p>
+    
+    <p>現在住在創新港南區公寓，距離工位祇有一萬八千里。為了更好地<del>工作学習</del>（摸魚），於是將工位電腦部署為服務器。但能否推動生產力不是最關鍵，關鍵是要優雅！</p>
+
+<h1 id="ssh">SSH</h1>
+
+<blockquote>
+  <p>The <a href="https://en.wikipedia.org/wiki/Secure_Shell"><strong>Secure Shell Protocol</strong> (<strong>SSH</strong>)</a> is a cryptographic network protocol  for operating network services securely over an unsecured network. Its most notable applications are remote login and command-line execution.</p>
+</blockquote>
+
+<p>由於經常待在宿舍或其它奇怪的地方，所以需要遠程登錄的工具，那就用到 SSH 協議了。由於我使用的 MacOS 和 Ubuntu，所以在客戶端不需要重新安裝 SSH Client，祇需要在工位電腦（服務器）裝 SSH Server 即可。</p>
+
+<p>具體方法利用搜索引擎即可。簡述如下：</p>
+
+<ol>
+  <li>安裝 openssh-server</li>
+</ol>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="nb">sudo </span>apt <span class="nb">install </span>openssh-server
+</code></pre></div></div>
+
+<ol>
+  <li>使用 <code class="language-plaintext highlighter-rouge">systemctl status openssh-server</code> 查看服務狀態，若未啟用，則輸入命令：</li>
+</ol>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="nb">sudo </span>systemctl start openssh-server
+</code></pre></div></div>
+
+<ol>
+  <li>其實就結束了，在客戶端 <code class="language-plaintext highlighter-rouge">ssh user@hostname</code> 試試能否成功。對於有安裝有防火牆的情況，在防火牆中允許使用 SSH 默認端口 22。</li>
+</ol>
+
+<p>由於在校園中使用校園網，而工位網線連接校園網被分配了一個校園網內可識別的 ip 地址，所以其它設備祇要使用校園網就能連接到服務器（當然包括了宿舍）。特別地，在宿舍內用路由器連接網口，而後其對於連接此路由器的設備會動態分配一個諸如 <code class="language-plaintext highlighter-rouge">192.168.xxx.xxx</code> 的内網 ip，那麼對於正常接入校園網的設備就無法連接，為了將宿舍電腦也部署成服務器，遮裏祇需要注意到校園網和路由器是差不多在同一個網段下的，所以在使用校園網時能通過 ip 找到路由器，所以祇要在路由器上設置一下端口映射：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>routerip:port_0 -&gt; serverip:port_1
+</code></pre></div></div>
+
+<p>就好了。特別由於路由器所属權在於自己，可以進行局域網下設備 ip 和 MAC 地址，遮樣服務器的子網 ip 就不會發生改變。</p>
+
+<h1 id="ddns">DDNS</h1>
+
+<blockquote>
+  <p><a href="https://en.wikipedia.org/wiki/Dynamic_DNS"><strong>Dynamic DNS (DDNS)</strong> </a>is a method of automatically updating a name server in the Domain Name System (DNS), often in real time, with the active DDNS configuration of its configured hostnames, addresses or other information.</p>
+</blockquote>
+
+<p>動態域名解析，以前在興慶不需要遮個操作，因為局域網內的 ip 幾乎不變，但遮幾日不知是甚麼原因，分配的 ip 隔三差五無效，重連意味著 ip 地址改變，我就得重配 <code class="language-plaintext highlighter-rouge">~/.ssh/config</code> 下的 ip，非常麻煩。</p>
+
+<p>而使用 DDNS 相當於我不再關注服務器的 ip 地址，祇用一个固定的域名去訪問服務器，而解析域名的工作交給第三方來完成。遮裏我找了 github 上的一個項目：<a href="https://github.com/jeessy2/ddns-go">ddns-go</a>，然後購買一個域名，交由 DDNS-GO 來解析。簡要步驟如下：</p>
+
+<ol>
+  <li>根據不同 DNS 服務商的安全認證方式配置。</li>
+  <li>此處由於我需要局域網下的 ip，所以可以使用「通過網卡獲取」或通過「命令獲取」的方式來配置 IPv4。</li>
+  <li>在域名欗中加入所購買的域名。</li>
+</ol>
+
+<p>其實就是當訪問遮個域名時，會先到 DNS 服務商（如：阿里云）那去問 ip，而服務商與 DDNS-GO 「签訂了某種協議」，又來問 DDNS-GO，而DDNS-GO 是通過本地網卡知道當前 ip 的，所以最後域名就是在服務器下自己解析的。</p>
+
+<p>另外發現學校不是動態更新 ip，而是由於某些原因，一些原有的 ip 就會 expire，所以遮時雖還有一個 ip，但是是無效 ip，無法連接互聯網，於是寫了一個腳本來解決遮個問題。具體思路為：</p>
+
+<ol>
+  <li>每隔較長一段時間，ping 子網路由器。</li>
+  <li>若 ping 通，甚麼也不做；若 ping 不通，重启有線網。</li>
+</ol>
+
+<p>還在修改，現在是或許能用的狀態，不太會寫腳本，調試好了再掛出來。</p>
+
+<h1 id="ftp-sftp-smb">FTP, SFTP, SMB</h1>
+
+<p>一些共享文件以及傳輸的協議。</p>
+
+<p>對於 FTP 和 SFTP，在服務器上：</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="nb">sudo </span>apt <span class="nb">install </span>vsftpd
+</code></pre></div></div>
+
+<p>即可，不用做多餘的配置。</p>
+
+<p>對於 SMB，比較麻煩，首先在服務器上：</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="nb">sudo </span>apt <span class="nb">install </span>samba
+</code></pre></div></div>
+
+<p>然后要在 <code class="language-plaintext highlighter-rouge">/etc/samba/smb.conf</code> 下進行配置，參數具體含義可 google 之。</p>
+
+<p>遮裏需要注意的是，在很多地方的 445 端口（SMB 默認端口）被封可能带來連接上的問題，所以可在配置中修改默認端口。</p>
+
+<p>其實有 FTP, SFTP 已完全够用，祇不過 iphone 上面的 files 似乎祇支持 SMB（不過似乎用 SMB 對共享文件管理確實比較容易），最後搞了半天還是沒法從宿舍接入，可能 iphone 在遮邊嚴格判斷要在同一網段吧。</p>
+
+<p>太不優雅！但累了，沒法搞，最後下了個第三方 app FTP Manager，還祇能連一個 server，勉強用下… 然後看視頻可用<u>路</u>推薦的 infuse。</p>
+
+<h1 id="結">結</h1>
+
+<p>寫得有點累，故後面簡略帶過。感覺本來很多話想說的，但又無言了，唉！創新港之涼風，沈寂淒清。</p>
+
+<p>開學已是第三週，想來一事無成。</p>
+
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

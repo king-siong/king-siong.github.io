@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      Borders in Strings
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Borders in Strings" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This post is based on the lecture “Selected Topics in String Algorithms”1 delivered by Ce Jin. 中文：「字符串算法选讲」。You might find this recording video on bilibili useful. &#8617;" />
+<meta name="twitter:description" property="og:description" content="This post is based on the lecture “Selected Topics in String Algorithms”1 delivered by Ce Jin. 中文：「字符串算法选讲」。You might find this recording video on bilibili useful. &#8617;" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-11-26T00:00:00+00:00" />
+<meta property="article:modified_time" content="2025-11-26T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Borders in Strings" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2025-11-26T00:00:00+00:00","datePublished":"2025-11-26T00:00:00+00:00","description":"This post is based on the lecture “Selected Topics in String Algorithms”1 delivered by Ce Jin. 中文：「字符串算法选讲」。You might find this recording video on bilibili useful. &#8617;","headline":"Borders in Strings","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2025/11/26/Borders/"},"url":"/blog/2025/11/26/Borders/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">Borders in Strings</div>
+    
+    <p class="post-meta">
+        <time datetime="2025-11-26 00:00:00 +0000">November 26, 2025</time>
+    </p>
+    
+    <p>This post is based on the lecture “Selected Topics in String Algorithms”<sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup> delivered by <a href="https://ce-jin.github.io">Ce Jin</a>.</p>
+
+<h1 id="preliminaries">Preliminaries</h1>
+
+<p>An <em>alphabet</em> is a finite and nonempty set, usually denoted by $\Sigma$. The elements of $\Sigma$ are called <em>characters</em>. A <em>string</em> of length $n$ is a sequence of characters $(s_1, s_2, \ldots, s_{n})$ with $s_i\in \Sigma$, and is denoted by $s[1\ldots n]$. We write $|s|$ for the length of a string $s$. A <em>substring</em> $s[i\ldots j] (1\leq i\leq j\leq n)$ of $s$ is the sequence $(s_i, s_{i+1}, \ldots, s_{j})$. We use $s[i]=s_i$ to denote the $i$-th character of $s$. For simplicity, we also write $s[i\ldots j]=s[i]s[i+1]\ldots s[j]$ as shorthand for the sequence $(s_i,s_{i+1},\ldots, s_{j})$<sup id="fnref:2"><a href="#fn:2" class="footnote" rel="footnote" role="doc-noteref">2</a></sup>. A <em>prefix</em> of $s$ of length $x$, denoted $pre(s, x)$, is the substring $s[1\ldots x]$; similarly, a <em>suffix</em> of length $x$, denoted $suf(s,x)$, is the substring $s[n-x+1\ldots n]$.</p>
+
+<h1 id="string-matching-problem">String Matching Problem</h1>
+
+<p>A string matching problem is stated as follows: given 2 strings $s$ and $t$ of length $n$ and $m (n\leq m)$, respectively. Determine that if there is a substring $t[i\ldots i+n-1], (1\leq i\leq m-n+1)$ of $t$ such that $s=t[i\ldots i+n-1]$.</p>
+
+<p>I’ll stop here today! I’m too lazy!!!</p>
+
+<h2 id="brute-force-method">Brute Force Method</h2>
+
+<h2 id="borders-and-periodicity">Borders and Periodicity</h2>
+
+<h2 id="prefix-function">Prefix Function</h2>
+
+<h2 id="efficient-algorithm-for-prefix-function">Efficient Algorithm for Prefix Function</h2>
+
+<h1 id="periodicity-lemma">Periodicity Lemma</h1>
+
+<h1 id="applications">Applications</h1>
+
+<hr />
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1">
+      <p>中文：「字符串算法选讲」。You might find this <a href="https://www.bilibili.com/video/BV11K4y1p7a5/?spm_id_from=333.337.search-card.all.click&amp;vd_source=8c16a13cd30327b663a92ad877ed36c8">recording video</a> on bilibili useful. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>$s[i\ldots i]$ can also be written as $s[i]$. <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+    
+    <p style="text-align: right;">
+        <time datetime="2025-12-09" style="color: gray; font-style: italic;">Last updated on December  9, 2025</time>
+    </p>
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

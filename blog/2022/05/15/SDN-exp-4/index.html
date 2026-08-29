@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      SDN Exp #4
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="SDN Exp #4" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="第四次實驗和之前的不太相同，並無真正自己需要實現的東西，主要是針對开源的一個實現 Veriflow 的項目進行閱讀理解。" />
+<meta name="twitter:description" property="og:description" content="第四次實驗和之前的不太相同，並無真正自己需要實現的東西，主要是針對开源的一個實現 Veriflow 的項目進行閱讀理解。" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-05-15T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-05-15T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="SDN Exp #4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2022-05-15T00:00:00+00:00","datePublished":"2022-05-15T00:00:00+00:00","description":"第四次實驗和之前的不太相同，並無真正自己需要實現的東西，主要是針對开源的一個實現 Veriflow 的項目進行閱讀理解。","headline":"SDN Exp #4","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2022/05/15/SDN-exp-4/"},"url":"/blog/2022/05/15/SDN-exp-4/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">SDN Exp #4</div>
+    
+    <p class="post-meta">
+        <time datetime="2022-05-15 00:00:00 +0000">May 15, 2022</time>
+    </p>
+    
+    <p>第四次實驗和之前的不太相同，並無真正自己需要實現的東西，主要是針對开源的一個實現 <code class="language-plaintext highlighter-rouge">Veriflow</code> 的項目進行閱讀理解。</p>
+
+<p>在實際網絡中，由於人為因素添加或删除流表常常出錯，<code class="language-plaintext highlighter-rouge">Veriflow</code> 的大致思想就是在下發流表前對其進行檢驗，並予以反饋，遮樣錯誤的規則被提前找到後就可避免其下發造成網絡故障。</p>
+
+<p>其原理主要依賴兩個思想：</p>
+
+<ul>
+  <li>對數據包劃分等價類；</li>
+  <li>使用增量算法減少計算量。</li>
+</ul>
+
+<p>等價類：雖然網絡中數據包的種類有很多，但若對於兩個不同的數據包，其在所有交換機上的轉發行為都相同，那么就可將其視為同一類，遮樣網絡中「不同數據包」的數量暫時就不会太多。具體維護用的 Trie 樹。</p>
+
+<p>增量算法：每次增加或者删除規則時，並不會有太多等價類受影響，於是祗要處理受影響的那些等價類即可。</p>
+
+<p>實驗源碼的思路，每增删一條規則：</p>
+
+<ol>
+  <li>先計算受影響的等價類；</li>
+  <li>對每個等價類生成轉發圖；</li>
+  <li>遍歷轉發圖以進行對規則的檢驗。</li>
+</ol>
+
+<h1 id="基础實驗">基础實驗</h1>
+
+<p>基础實驗要求打印一些信息量，而後解釋補丁的作用。對信息量的輸出要求，簡單模仿一下就行。</p>
+
+<p>該實驗並非完全在原項目中执行，學校給出了一個補丁。</p>
+
+<p>雖然補丁相較於源碼有七没八的修改很多，但關鍵在於在 <code class="language-plaintext highlighter-rouge">Rule</code> 中加入新成員 <code class="language-plaintext highlighter-rouge">in_port</code> 而後在 <code class="language-plaintext highlighter-rouge">VeriFlow::traverseForwardingGraph()</code> 中加入了上一跳的信息進行轉發驗證。</p>
+
+<p>要理解為何如此處理首先得理解未打補丁前代碼的邏輯：在同一個等價類中，對于遍歷過程中的每個點，都按照流表規則中優先級最髙者轉發至下一個點。在中間過程處理網絡故障。</p>
+
+<p>遮樣的思路我覺得並没有問題，那麽實驗中補丁何用？關鍵在於實驗中流表下發的方式，如其在 <code class="language-plaintext highlighter-rouge">shortest_path</code> 中：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">port_path</span><span class="p">:</span>
+    <span class="n">in_port</span><span class="p">,</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">out_port</span> <span class="o">=</span> <span class="n">node</span>
+    <span class="n">self</span><span class="p">.</span><span class="nf">send_flow_mod</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">pkt_type</span><span class="p">,</span> <span class="sh">"</span><span class="s">10.0.0.0/24</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">10.0.0.0/24</span><span class="sh">"</span><span class="p">,</span> <span class="n">in_port</span><span class="p">,</span> <span class="n">out_port</span><span class="p">)</span>
+    <span class="n">self</span><span class="p">.</span><span class="nf">send_flow_mod</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">dpid</span><span class="p">,</span> <span class="n">pkt_type</span><span class="p">,</span> <span class="sh">"</span><span class="s">10.0.0.0/24</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">10.0.0.0/24</span><span class="sh">"</span><span class="p">,</span> <span class="n">out_port</span><span class="p">,</span> <span class="n">in_port</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>可以看到流表來回的路上都發了，但是請注意，其 <code class="language-plaintext highlighter-rouge">ip</code> 均相同，簡單來說在該實驗中遮两者被劃到同一等價類。那麽在此等價類，對於路徑上的某个點 $B$，其有兩條優先級相同的規則，那麽它會選擇其中某一條，那麽此時在遍歷等價類過程中，$A$  由規則轉移至 $B$，那麽 $B$ 是有可能再發回 $A$ 的，那麽可能一下子就有環路了。</p>
+
+<p>所以補丁就是為了解決該問題，解決的思路亦很簡單，如果剛从 $A$ 走到 $B$，$B$ 就不再走回 $A$。具體方法就是對規則選擇進一步的限制，限制 <code class="language-plaintext highlighter-rouge">in_port</code>，在 <code class="language-plaintext highlighter-rouge">in_port</code> 為接收上一交換機數據包的端口的規則選擇優先級最高的作為當前的轉發規則。但遮樣的思路一旦被加入，則可能出現新的黑洞，遮是由於匹配上該 <code class="language-plaintext highlighter-rouge">in_port</code> 的規則可能一條都没有。</p>
+
+<p>需要注意的是，由於當前轉發依賴了 <code class="language-plaintext highlighter-rouge">in_port</code>，那麽路徑中如果出現重復點將不意味著一般的環路，遮是由於重復點後由於 <code class="language-plaintext highlighter-rouge">in_port</code> 不同下一跳會脫離遮個環。另外要注意發現重復點不意味該路徑上所有點都在環路上，要過濾掉之前的點：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span><span class="p">(</span><span class="n">visited</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">currentLocation</span><span class="p">)</span> <span class="o">!=</span> <span class="n">visited</span><span class="p">.</span><span class="n">end</span><span class="p">())</span>
+<span class="p">{</span>
+    <span class="c1">// Found a loop.</span>
+	<span class="p">...</span>
+    <span class="kt">int</span> <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(;</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">seq</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">idx</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="n">currentLocation</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(;</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">seq</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">idx</span><span class="p">)</span> <span class="n">fprintf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s">"%s -&gt; "</span><span class="p">,</span> <span class="n">seq</span><span class="p">[</span><span class="n">idx</span><span class="p">].</span><span class="n">c_str</span><span class="p">());</span>
+    <span class="n">fprintf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">currentLocation</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+
+    <span class="p">...</span>
+
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="拓展實驗">拓展實驗</h1>
+
+<p>拓展實驗在兩部分，一是性能優化，二是修複細節問題。</p>
+
+<p>對於遮個性能優化我覺得真的無意義。因為實驗中提供另外的一個規則下發文件，使規則數大增，最後速度變慢了上百倍，由於每次影響的等價類僅有三，我本已為是增量算法寫掛了，但是發現不是。是因為一个用於記錄錯誤等價類的名為 <code class="language-plaintext highlighter-rouge">faults</code> 的 <code class="language-plaintext highlighter-rouge">vector</code> 每次都遍歷了一遍，而 $\vert faults\vert$ 最後增到 $25k+$…也就是說本來應當是每次花費差不多的時間，而後優化其它部分，但在該實驗，<code class="language-plaintext highlighter-rouge">faults</code> 成為了瓶頸，無論怎麽優化，最後時間都在此被限制。</p>
+
+<p>修複問題，前幾天考天才的無意義機器學習，没時間認真看源碼並且也懶得混分了（主要原因），就做了指導書上提示有問題的部分，也是 <code class="language-plaintext highlighter-rouge">faults</code>。</p>
+
+<p><code class="language-plaintext highlighter-rouge">faults</code> 用於記錄出錯的等價類，每當規則加入或者删除時，等價類發生了改變，需要將無效的先從 <code class="language-plaintext highlighter-rouge">faults</code> 中删去，遮些就是當前受影響等價類的子集和超集。在遍歷中找到問題加進去就好了。</p>
+
+<p>實現中我用了 <code class="language-plaintext highlighter-rouge">set</code>，需重載全序的半序关系。複雜度仍不佳，$O(n\log n)$，$n$ 為 <code class="language-plaintext highlighter-rouge">faults</code> 大小。關鍵在於找不到好的方法去實現超集子集的快速檢索，實驗中的等價類劃分依據十四維的偏序。如果是一維的那確實可做，然而…</p>
+
+<h1 id="參考">參考</h1>
+
+<ul>
+  <li><a href="/document/SDN_exp_4.pdf">XJTU-SDN-EXP-4</a></li>
+  <li><a href="https://www.usenix.org/system/files/conference/nsdi13/nsdi13-final100.pdf">VeriFlow: Verifying Network-Wide Invariants in Real Time</a></li>
+</ul>
+
+<p>SDN 實驗至此悉數完成，課程也落下帷幕，實驗還是很有意義的，值得嘗試。代碼放在了 <a href="https://github.com/KingSiong/SDN-Experiment">github 倉庫</a>中，歡迎交流。</p>
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

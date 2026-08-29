@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      SDN Exp #3
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="SDN Exp #3" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="第三次實驗需要完成端口負載測量，帶寬測量，然後完成最優帶寬路徑的轉發。" />
+<meta name="twitter:description" property="og:description" content="第三次實驗需要完成端口負載測量，帶寬測量，然後完成最優帶寬路徑的轉發。" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-04-28T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-04-28T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="SDN Exp #3" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2022-04-28T00:00:00+00:00","datePublished":"2022-04-28T00:00:00+00:00","description":"第三次實驗需要完成端口負載測量，帶寬測量，然後完成最優帶寬路徑的轉發。","headline":"SDN Exp #3","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2022/04/28/SDN-exp-3/"},"url":"/blog/2022/04/28/SDN-exp-3/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">SDN Exp #3</div>
+    
+    <p class="post-meta">
+        <time datetime="2022-04-28 00:00:00 +0000">April 28, 2022</time>
+    </p>
+    
+    <p>第三次實驗需要完成<strong>端口負載測量</strong>，帶寬測量，然後完成<strong>最優帶寬路徑</strong>的轉發。</p>
+
+<p>本次實験需要搗鼓的地方不多。</p>
+
+<h1 id="測量端口負載">測量端口負載</h1>
+
+<p>根據交換機對 <code class="language-plaintext highlighter-rouge">OFPMP_PORT_STATS</code> 的回覆中有的 <code class="language-plaintext highlighter-rouge">tx_bytes</code>, <code class="language-plaintext highlighter-rouge">rx_bytes</code>, <code class="language-plaintext highlighter-rouge">duration_sec</code> 以及 <code class="language-plaintext highlighter-rouge">duration_nsec</code> 字段可求得交換機端口的負載。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">uint64_t</span> <span class="n">rx_bytes</span><span class="p">;</span>	<span class="cm">/* Number of received bytes. */</span>
+<span class="kt">uint64_t</span> <span class="n">tx_bytes</span><span class="p">;</span>	<span class="cm">/* Number of transmitted bytes. */</span>
+
+<span class="kt">uint32_t</span> <span class="n">duration_sec</span><span class="p">;</span>	<span class="cm">/* Time port has alive in seconds. */</span>
+<span class="kt">uint32_t</span> <span class="n">duration_nsec</span><span class="p">;</span>	<span class="cm">/* Time port has alive in nanoseconds beyond duration_sec. */</span>
+</code></pre></div></div>
+
+<p>由上聲明時的注釋可知：</p>
+
+<p><code class="language-plaintext highlighter-rouge">rx_bytes</code> 與 <code class="language-plaintext highlighter-rouge">tx_bytes</code> 之和即為總接收的字节數，故端口負載為：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="n">rx_bytes</span> <span class="o">+</span> <span class="n">tx_bytes</span> <span class="o">-</span> <span class="n">lst_rx_bytes</span> <span class="o">+</span> <span class="n">lst_tx_bytes</span><span class="p">)</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">*</span> <span class="mf">1e-6</span> \
+ <span class="o">/</span> <span class="p">(</span><span class="n">duration_sec</span> <span class="o">+</span> <span class="n">duration_nsec</span> <span class="o">*</span> <span class="mf">1e-9</span> <span class="o">-</span> <span class="n">lst_duration_sec</span> <span class="o">-</span> <span class="n">lst_duration_nsec</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>再多開一個線程進行周期性測量。</p>
+
+<h1 id="最佳帶寬路徑">最佳帶寬路徑</h1>
+
+<p>約定交換機之間的總帶寬為 1000 Mbps，交換機與主機間則無有限制。</p>
+
+<p>可用帶寬 = 總帶寬 - 負載</p>
+
+<p>再建圖的 <code class="language-plaintext highlighter-rouge">get_topo</code> 中完善帶寬信息後，祗需完成瓶頸路的計算。指導書中利用 <code class="language-plaintext highlighter-rouge">networkx</code> 中的 <code class="language-plaintext highlighter-rouge">shortest_simple_paths</code> 返迴所有 s1 至 s2 的路徑而後一一检查，無疑是最烂的方法。當圖為有 $n$ 个結點的完全圖時，其路徑數為：</p>
+
+\[\begin{align*}
+\sum_{i=0}^{n-2}A_{n-2}^{i}&amp;\geq \sum_{i=0}^{n-2}C_{n-2}^i\\
+&amp;=2^{n-2}
+\end{align*}\]
+
+<p>一種簡單易理解的方法就是二分答案，複雜度為 $O(n\log A)$，$A$ 為最大帶寬可能值。另外利用 Kruskal 算法得到的樹狀圖中的任意两點間的路徑即為瓶頸路，可利用反證的一些想法證明此點。這樣就能 $O(n\log m)$ 建圖而後 $O(n)$ 回答。最小生成樹的算法 <code class="language-plaintext highlighter-rouge">networkx</code> 亦有實現，調用即可。</p>
+
+<h1 id="附加題">附加題</h1>
+
+<p>附加題與前两問關係不大，意在實現一个路徑計算，必須先經過某個中間點 <code class="language-plaintext highlighter-rouge">Tinker</code> 再到目的地且未至 <code class="language-plaintext highlighter-rouge">Tinker</code> 前不允許經過目的主機直連的交換機。求最小跳數路經。</p>
+
+<p>這個問題非常容易，bfs 並維護一個當前是否經過 <code class="language-plaintext highlighter-rouge">Tinker</code> 的記錄，複雜度 $O(n)$。</p>
+
+<h1 id="參考">參考</h1>
+
+<ul>
+  <li><a href="/document/SDN_exp_3.pdf">XJTU-SDN-EXP-3</a></li>
+  <li><a href="https://ryu.readthedocs.io/en/latest/getting_started.html">Ryu 4.34 documentation</a></li>
+</ul>
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

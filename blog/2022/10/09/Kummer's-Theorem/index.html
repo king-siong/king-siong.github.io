@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      Kummer's Theorem
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Kummer’s Theorem" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="定理：" />
+<meta name="twitter:description" property="og:description" content="定理：" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-10-09T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-10-09T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Kummer’s Theorem" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2022-10-09T00:00:00+00:00","datePublished":"2022-10-09T00:00:00+00:00","description":"定理：","headline":"Kummer’s Theorem","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2022/10/09/Kummer's-Theorem/"},"url":"/blog/2022/10/09/Kummer's-Theorem/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">Kummer's Theorem</div>
+    
+    <p class="post-meta">
+        <time datetime="2022-10-09 00:00:00 +0000">October  9, 2022</time>
+    </p>
+    
+    <p>定理：</p>
+
+<p>Kummer’s theorem 指出，對於給定的非負整數 $n\geq m \geq 0$ 和素數 $p$，則 $v_p\left(C_n^m\right)$ 等於以 $p$ 為基底時 $m$ 加上 $(n - m)$ 的進位次數。</p>
+
+<p>證明：</p>
+
+<p>由於 $C_{n+m}^m$ 所含 $p$ 的幂次為：</p>
+
+\[\begin{align*}
+&amp;\sum_{i=1}^{\infty}\left[\frac{m+n}{p^i}\right]-\sum_{i=1}^{\infty}\left[\frac{n}{p^i}\right]-\sum_{i=1}^{\infty}\left[\frac{m}{p^i}\right]\\
+=&amp;\sum_{i=1}^{\infty}\left[\frac{m+n}{p^i}\right]-\left[\frac{n}{p^i}\right]-\left[\frac{m}{p^i}\right]
+\end{align*}\]
+
+<p>可以發現：</p>
+
+\[\sum_{i=1}^{\infty}\left[\frac{m+n}{p^i}\right]-\left[\frac{n}{p^i}\right]-\left[\frac{m}{p^i}\right]=
+\begin{cases}
+1\text{在 (i+1) 位發生進位}\\
+0\text{在 (i+1) 位不發生進位}
+\end{cases}\]
+
+<p>故求和後就是 $m+n$ 在 $p$ 進制下進位的次數。</p>
+
+<p>典例：</p>
+
+<p><a href="https://codeforces.com/gym/102441/problem/C">2018-2019 9th BSUIR Open Programming Championship. Final C. Partial Sums</a></p>
+
+<p>首先有</p>
+
+\[A_{k}[i,j]=\left(\sum_{u,v}A_0[u,v]C_{i-u+k-1}^{i-u}C_{j-v+k-1}^{j-v}\right)\mod 2\]
+
+<p>故當 $2^d\geq \max(n, m)$ 時，只有 $A_0[i,j]$ 才有貢獻，故 $2^d$ 必為 $A$ 的一个循環節，故其階（最小循環節）為 $2^t(t\leq d)$。接着暴力枚舉檢驗就好了。</p>
+
+<p>複雜度：$O(nm\log(\max(n,m)))$。</p>
+
+<p><a href="https://codeforces.com/gym/102586/problem/E">XX Open Cup, Grand Prix of Tokyo E. Count Modulo 2</a></p>
+
+<p>即求：</p>
+
+\[\begin{align*}
+&amp;\sum_{i=1}^{k}A_ib_i=S\\
+&amp;\sum_{i=1}^{k}b_i=n
+\end{align*}\]
+
+<p>其中 $b_i\geq 0$ 的情況數的奇偶。根据 Kummer’s theorem，$b_i$ 之或為 $n$ 且 $b_i$ 两两與為 $0$。所以可按位對 $n$ 進行動態規劃。另外記 $\max(A_i)=V$，則第 $i$ 位做完的值必不超過 $V2^i$，且遮裏面祇有 $\mod 2^{i-1}$ 與 $S$ 同餘的狀態有貢獻，所以 $S$ 也拆位同時做，不斷篩去不合法的，然後留給下一次 dp 的狀態就祇有 $O(V)$ 个，最後 $f[0]$ 的奇偶性就是答案。但最後要用 bitset 加速。</p>
+
+<p>複雜度：$O(TKV\log(S)/\omega)$。</p>
+
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

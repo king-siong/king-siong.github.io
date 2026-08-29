@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      1st Try: Openpose
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="1st Try: Openpose" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="其實遮是個未果的任務（遮學期垃圾事太多了，特別是某 ML 課程的實驗），並不使我歡喜，但我還是記錄下來，畢竟遮也是成長路上的一次嘗試。" />
+<meta name="twitter:description" property="og:description" content="其實遮是個未果的任務（遮學期垃圾事太多了，特別是某 ML 課程的實驗），並不使我歡喜，但我還是記錄下來，畢竟遮也是成長路上的一次嘗試。" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-06-21T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-06-21T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="1st Try: Openpose" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2022-06-21T00:00:00+00:00","datePublished":"2022-06-21T00:00:00+00:00","description":"其實遮是個未果的任務（遮學期垃圾事太多了，特別是某 ML 課程的實驗），並不使我歡喜，但我還是記錄下來，畢竟遮也是成長路上的一次嘗試。","headline":"1st Try: Openpose","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2022/06/21/openpose/"},"url":"/blog/2022/06/21/openpose/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">1st Try: Openpose</div>
+    
+    <p class="post-meta">
+        <time datetime="2022-06-21 00:00:00 +0000">June 21, 2022</time>
+    </p>
+    
+    <p>其實遮是個未果的任務（遮學期垃圾事太多了，特別是某 ML 課程的實驗），並不使我歡喜，但我還是記錄下來，畢竟遮也是成長路上的一次嘗試。</p>
+
+<p>今年三月去找張老師的時候，他告訴我和<u>孫</u>实驗室有一個正在做的項目，是做多路動作的捕捉。簡單說就是一个有多個畫面的視頻，要實時地去捕捉畫面中人的動作。張老師告訴我們現已有一個開源項目 <a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">openpose</a>，其較好實現了多人識別，於是想將 openpose 應用到該項目中，但發現在單畫面的時候效果不錯，但多畫面時識別時間就增加以致於達不到實時的效果，而我們的主要任務即是分析此原因。</p>
+
+<p>在後半個學期，參加了四次工作匯报的組會。</p>
+
+<h1 id="read-the-paper">Read the paper</h1>
+
+<p>主要是閱讀了論文 <a href="https://arxiv.org/abs/1812.08008">OpenPose: Realtime Multi-Person 2D Pose Estimation using Part Affinity Fields</a>，知道實現 openpose 的主要算法，使用自下而上的方法，識別流程，關鍵技術，如 Part Affinity Fields(PAF) 和 Confidence Maps。</p>
+
+<p><u>孫</u>看了篇關於 GPU 虚擬化加速 openpose 識別的論文。
+張老師說可以先不搞理論優化的，先把 openpose 跑起來。</p>
+
+<h1 id="run-the-project">Run the project</h1>
+
+<p>於是我們開始研究如何 run 這個 openpose，由於没有提供服務器，最好的方法就是使用免費的 colab 了。我根据網上的一個 <a href="https://colab.research.google.com/github/tugstugi/dl-colab-notebooks/blob/master/notebooks/OpenPose.ipynb">notebook</a> run 了一下，<u>孫</u>說跑太慢，决定用智星云的高性能服务器，結果失敗了。（因為我没和他一起配我不太懂，據說是 boost 的版本和 Nvidia cuda 版本對不上，問了<u>焦学姐</u>也没辦法解决，她是在 windows 下配的环境，在 Linux 下就是問題很多…）</p>
+
+<p>那就用 colab 跑吧，我用 python 的 opencv 逐幀拼圖，試了 $3\times 3$ 的带脸部和不带脸部的識別，結果發現不带脸的情況下 $3\times 3$ 的識別時間為 $1\times 1$ 的 $3$ 倍。</p>
+
+<p>學長說可能是圖中祗有三個人，openpose 識別了遮三人，故祗做三次，我覺得不是，因為遮和他論文中提到的自底向上法相悖。</p>
+
+<p>於是下個任务就是分析原因。</p>
+
+<h1 id="analyse-the-reason">Analyse the reason</h1>
+
+<p>没辦法，上次样本用太少，能得出正确結論才有問题。仔细想下可以發現拼圖的方式很有問題，我是單純把每幀拼在一块，那麼遮樣就無有做到控制變量，因為分辨率提高了。下圖便是佐證。</p>
+
+<p><img src="https://github.com/king-siong/images/raw/main//220621/nsqare.png" alt="" /></p>
+
+<p>但是遮樣一來便發現此方法關於像素点個數似乎是線性的，於是若控制分辨率那麼多人識別理論要和單人的時間差不多。</p>
+
+<h1 id="optimize-">Optimize ?</h1>
+
+<p>但事實不是那麼簡單。在此次，我們主要針對降幀和降分辨率進行優化。</p>
+
+<p>在降幀時出現了異常的波動，具體元因不明，懷疑是其本身有用一些時間序列预測的方式來處理視頻而不是單純一幀一幀地做。</p>
+
+<p><img src="https://github.com/king-siong/images/raw/main//220621/issue_video.png" alt="" /></p>
+
+<p>在 issue 中有人提到了關於視頻處理的問题，但並無人解答。</p>
+
+<p>在降分辨率方面可以發現确實時間會差不多但代價仍會隨著畫面數量增多而增大。（並且當畫面中人太多會出錯，此處我們又回去看了下論文，具體得到的結論記不清了）</p>
+
+<p>時間有些久有些細節記不太清了，所以就隨意地記錄下好了。所以我似乎無有結論？</p>
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

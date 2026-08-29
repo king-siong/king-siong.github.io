@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      SDN Exp #2
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="SDN Exp #2" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="第二次實験欲在擁有九個結點的拓扑網絡實現最少延時路徑轉發以及對鏈路故障的容忍。" />
+<meta name="twitter:description" property="og:description" content="第二次實験欲在擁有九個結點的拓扑網絡實現最少延時路徑轉發以及對鏈路故障的容忍。" />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-04-15T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-04-15T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="SDN Exp #2" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2022-04-15T00:00:00+00:00","datePublished":"2022-04-15T00:00:00+00:00","description":"第二次實験欲在擁有九個結點的拓扑網絡實現最少延時路徑轉發以及對鏈路故障的容忍。","headline":"SDN Exp #2","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2022/04/15/SDN-exp-2/"},"url":"/blog/2022/04/15/SDN-exp-2/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">SDN Exp #2</div>
+    
+    <p class="post-meta">
+        <time datetime="2022-04-15 00:00:00 +0000">April 15, 2022</time>
+    </p>
+    
+    <p>第二次實験欲在擁有九個結點的拓扑網絡實現<strong>最少延時路徑轉發</strong>以及對<strong>鏈路故障的容忍</strong>。</p>
+
+<h1 id="最小時延路徑">最小時延路徑</h1>
+
+<p>該任務關鍵並不在於算法層面上如何求解最短路，基本框架本已實現好，需要理解並完成的是鏈路時延的計算。該計算主要依據 LLDP 以及 Echo 數據包。</p>
+
+<p>当帶有時間戳的 LLDP 經由交換機 S1 至 S2 而後返囬控制器時，控制器會根據接收時間以及發送時間計算出 控制器 $\rightarrow$ S1$\rightarrow$ S2$\rightarrow$ 控制器 的時延 <code class="language-plaintext highlighter-rouge">lldp_delay_s12</code>，同理可以計算 <code class="language-plaintext highlighter-rouge">lldp_delay_s21</code>。為獲取 S1 至 S2 的時延，還需控制器至 S1 以及 S2 的時延，這步可經由 Echo 數據包實現。故可得鏈路平均時延為：</p>
+
+\[delay=\frac{delay_{lldp}(s1,s2)+delay_{lldp}(s2,s1)-delay_{echo}(s1)-delay_{echo}(s2)}{2}\]
+
+<p>實現 <code class="language-plaintext highlighter-rouge">lldp_delay</code> 的函數如下：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@set_ev_cls</span><span class="p">(</span><span class="n">ofp_event</span><span class="p">.</span><span class="n">EventOFPPacketIn</span><span class="p">,</span> <span class="n">MAIN_DISPATCHER</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">packet_in_handler</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">ev</span><span class="p">.</span><span class="n">msg</span>
+    <span class="n">dpid</span> <span class="o">=</span> <span class="n">msg</span><span class="p">.</span><span class="n">datapath</span><span class="p">.</span><span class="nb">id</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">src_dpid</span><span class="p">,</span> <span class="n">src_port_no</span> <span class="o">=</span> <span class="n">LLDPPacket</span><span class="p">.</span><span class="nf">lldp_parse</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">switches</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="n">switches</span> <span class="o">=</span> <span class="nf">lookup_service_brick</span><span class="p">(</span><span class="sh">'</span><span class="s">switches</span><span class="sh">'</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">switches</span><span class="p">.</span><span class="n">ports</span><span class="p">.</span><span class="nf">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">src_dpid</span> <span class="o">==</span> <span class="n">port</span><span class="p">.</span><span class="n">dpid</span> <span class="ow">and</span> <span class="n">src_port_no</span> <span class="o">==</span> <span class="n">port</span><span class="p">.</span><span class="n">port_no</span><span class="p">:</span>
+                    <span class="n">self</span><span class="p">.</span><span class="n">lldp_delay</span><span class="p">[(</span><span class="n">src_dpid</span><span class="p">,</span> <span class="n">dpid</span><span class="p">)]</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">switches</span><span class="p">.</span><span class="n">ports</span><span class="p">[</span><span class="n">port</span><span class="p">].</span><span class="n">delay</span>
+     <span class="k">except</span><span class="p">:</span>
+         <span class="k">return</span>
+</code></pre></div></div>
+
+<p>對於 <code class="language-plaintext highlighter-rouge">echo_delay</code>，需要多開一個線程來不停發送 <code class="language-plaintext highlighter-rouge">echo_request</code> ：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_measure</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">_send_echo_request</span><span class="p">()</span>
+        <span class="n">hub</span><span class="p">.</span><span class="nf">sleep</span><span class="p">(</span><span class="n">SEND_ECHO_REQUEST_INTERVAL</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_send_echo_request</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+    <span class="n">switches</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">switches</span> <span class="o">=</span> <span class="nf">get_switch</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">switch</span> <span class="ow">in</span> <span class="n">switches</span><span class="p">:</span>
+    <span class="n">dp</span> <span class="o">=</span> <span class="n">switch</span><span class="p">.</span><span class="n">dp</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">dp</span><span class="p">.</span><span class="n">ofproto_parser</span>
+    <span class="n">echo_req</span> <span class="o">=</span> <span class="n">parser</span><span class="p">.</span><span class="nc">OFPEchoRequest</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="sh">'</span><span class="s">{:.10f}</span><span class="sh">'</span><span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()).</span><span class="nf">encode</span><span class="p">(</span><span class="sh">"</span><span class="s">utf-8</span><span class="sh">"</span><span class="p">))</span>
+    <span class="n">dp</span><span class="p">.</span><span class="nf">send_msg</span><span class="p">(</span><span class="n">echo_req</span><span class="p">)</span>
+
+<span class="nd">@set_ev_cls</span><span class="p">(</span><span class="n">ofp_event</span><span class="p">.</span><span class="n">EventOFPEchoReply</span><span class="p">,</span> <span class="n">MAIN_DISPATCHER</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">echo_reply_handler</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">latency</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="nf">eval</span><span class="p">(</span><span class="n">ev</span><span class="p">.</span><span class="n">msg</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">echo_latency</span><span class="p">[</span><span class="n">ev</span><span class="p">.</span><span class="n">msg</span><span class="p">.</span><span class="n">datapath</span><span class="p">.</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">latency</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span>
+</code></pre></div></div>
+
+<p>最後需要在生成拓扑的函數中計算結点（交換機）間的時延即可：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">delay</span> <span class="o">=</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">lldp_delay</span><span class="p">.</span><span class="nf">get</span><span class="p">((</span><span class="n">link</span><span class="p">.</span><span class="n">src</span><span class="p">.</span><span class="n">dpid</span><span class="p">,</span> <span class="n">link</span><span class="p">.</span><span class="n">dst</span><span class="p">.</span><span class="n">dpid</span><span class="p">),</span> <span class="n">INF</span><span class="p">)</span> <span class="o">+</span> \
+	<span class="n">self</span><span class="p">.</span><span class="n">lldp_delay</span><span class="p">.</span><span class="nf">get</span><span class="p">((</span><span class="n">link</span><span class="p">.</span><span class="n">dst</span><span class="p">.</span><span class="n">dpid</span><span class="p">,</span> <span class="n">link</span><span class="p">.</span><span class="n">src</span><span class="p">.</span><span class="n">dpid</span><span class="p">),</span> <span class="n">INF</span><span class="p">)</span> <span class="o">-</span> \
+    <span class="n">self</span><span class="p">.</span><span class="n">echo_latency</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="n">link</span><span class="p">.</span><span class="n">src</span><span class="p">.</span><span class="n">dpid</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> \
+    <span class="n">self</span><span class="p">.</span><span class="n">echo_latency</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="n">link</span><span class="p">.</span><span class="n">dst</span><span class="p">.</span><span class="n">dpid</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="k">if</span> <span class="n">delay</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">delay</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">self</span><span class="p">.</span><span class="n">topo_map</span><span class="p">.</span><span class="nf">add_edge</span><span class="p">(</span><span class="n">link</span><span class="p">.</span><span class="n">src</span><span class="p">.</span><span class="n">dpid</span><span class="p">,</span> <span class="n">link</span><span class="p">.</span><span class="n">dst</span><span class="p">.</span><span class="n">dpid</span><span class="p">,</span> <span class="n">hop</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> \
+                    <span class="n">delay</span><span class="o">=</span><span class="n">delay</span><span class="p">,</span> <span class="n">is_host</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h1 id="故障容忍鏈路時延">故障容忍鏈路時延</h1>
+
+<p>關鍵在於實現流表的删除。</p>
+
+<p>對於每次 <code class="language-plaintext highlighter-rouge">link s1 s2 down</code> 事件，都需要將相关路徑上的交換機的流表删除。</p>
+
+<p>實験中祇处理了 <code class="language-plaintext highlighter-rouge">arp</code> 以及 <code class="language-plaintext highlighter-rouge">ipv4</code> 包的 <code class="language-plaintext highlighter-rouge">packet-in</code>，筆者在处理時全部下發了流表，於是在 <code class="language-plaintext highlighter-rouge">link down</code> 事件發生時必須將這兩類的流表項删除。</p>
+
+<p>在指導書上僅 ` SDC ping MIT` 且祇删除該路徑上的某兩個点（S1, S2）的前提下，可以考慮如下删除策略：</p>
+
+<ul>
+  <li>查找路徑上所有 datapath，按其中 <code class="language-plaintext highlighter-rouge">mac_to_port</code> 所有可達的 <code class="language-plaintext highlighter-rouge">eth_dst</code> 進行 <code class="language-plaintext highlighter-rouge">OFPMatch</code>，進一步按此標準删除相關流表；</li>
+  <li>查找路徑上所有 datapath，按該路徑起點 <code class="language-plaintext highlighter-rouge">src_ip</code> 以及終點 <code class="language-plaintext highlighter-rouge">dst_ip</code> 進行 <code class="language-plaintext highlighter-rouge">OFPMatch</code>，進一步按此標準删除相關流表。</li>
+</ul>
+
+<p>據說此即為先生實験之原意，然而其實據此將帶來虚假的故障容忍。由於自始至終僅保留了一條 <code class="language-plaintext highlighter-rouge">path</code>，若 <code class="language-plaintext highlighter-rouge">link down</code> 的两个交換機都不在這條路上的話將删去零條流表項，以致 <code class="language-plaintext highlighter-rouge">ping</code> 不通的事件發生。實際上筆者在實験中嘗試了 <code class="language-plaintext highlighter-rouge">pingall</code> 後再 <code class="language-plaintext highlighter-rouge">link s8 s9 down</code> 就發生此類情況。所以筆者認為真正正确的做法就是删除網路中所有匹配 <code class="language-plaintext highlighter-rouge">arp</code> 以及 <code class="language-plaintext highlighter-rouge">ipv4</code> 包的流表項。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">dp</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">network_awareness</span><span class="p">.</span><span class="n">switch_info</span><span class="p">.</span><span class="nf">values</span><span class="p">():</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">parser</span><span class="p">.</span><span class="nc">OFPMatch</span><span class="p">(</span><span class="n">eth_type</span><span class="o">=</span><span class="mh">0x0800</span><span class="p">)</span>
+    <span class="n">self</span><span class="p">.</span><span class="nf">sup_del_flow</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">parser</span><span class="p">.</span><span class="nc">OFPMatch</span><span class="p">(</span><span class="n">eth_type</span><span class="o">=</span><span class="mh">0x0806</span><span class="p">)</span>
+    <span class="n">self</span><span class="p">.</span><span class="nf">sup_del_flow</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">0x0800</code> 以及 <code class="language-plaintext highlighter-rouge">0x0806</code> 分別為 <code class="language-plaintext highlighter-rouge">ivp4</code> 和 <code class="language-plaintext highlighter-rouge">arp</code> 數據报類型。</p>
+
+<p>私以為該任務還有一些值得注意的點：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">network_awareness.py</code> 中的 <code class="language-plaintext highlighter-rouge">_get_topology()</code> 實現有誤，每次檢測到拓扑結構改變應當删去舊圖，否則將致誤。這是因為網絡拓扑獲得是經由 <code class="language-plaintext highlighter-rouge">add_edge</code> 實現的，所以不清空實際就會變成圖中多了不少莫名其妙的邊。</li>
+  <li>在流表删除步驟中，<code class="language-plaintext highlighter-rouge">OFPFlowMod</code> 規則較為嚴格，參數幾乎都要指定，不然可能無法删除（建議先將流表項設為永不 expired，這樣可以用於确認是否真正删除了指空下來相關流表）。</li>
+  <li>由於鏈路狀熊改變，故 <code class="language-plaintext highlighter-rouge">mac_to_port</code> 以及 <code class="language-plaintext highlighter-rouge">sw</code> 須更新，不然可能導致轉發錯誤（筆者直接將其清空）。</li>
+  <li>若下發了 <code class="language-plaintext highlighter-rouge">arp</code> 的流表，需要指定 <code class="language-plaintext highlighter-rouge">eth_type</code>，否則即使無 <code class="language-plaintext highlighter-rouge">ipv4</code> 相關流表亦能匹配成功，且結果正确。這是由於按實験一解決 <code class="language-plaintext highlighter-rouge">arp</code> 廣播風暴的方法得到的轉發規則即為時延最短路。</li>
+</ul>
+
+<h1 id="附加題">附加題</h1>
+
+<p>附加題意在優化 LLDP，当網路中端口很多時如何使控制器僅發送交換機數量的 LLDP 數據包來減少資源消耗。由於鏈路信息包含兩兩可達交換機之間通信的端口，所以在網絡中數據包的數量並不能大幅減少，或者說，其實數據包數量是「邊數」級別的。但可以嘗試使控制器下發的數據包減少，於是考慮如下策略：</p>
+
+<ul>
+  <li>控制器向每個交換機的某个端口發送 LLDPDU，並標記 <code class="language-plaintext highlighter-rouge">Chassis ID</code> 為該交換機的 ID。</li>
+  <li>對每個交換機下發送流表，其規則為：對控制器發送的 LLDPDU，洪泛；對非控制器發送的 LLDPDU，由接送端口發送給控制器。</li>
+</ul>
+
+<p>如此一來，控制器对於接送到的 LLDPDU，可以得知其經由第一個交換機 S1 的 ID，以及第二個交換機 S2 的 ID 以及接收端口 port2，注意到控制器同样向 S2 發送了 LLDPDU，故 S1 亦會向控制器發送由 S2 收到的 LLDPDU，故此時控制得知 S1 与 S2 通信的端口 port1，由此方法即可得知全局鏈路信息。</p>
+
+<h1 id="參考">參考</h1>
+
+<ul>
+  <li><a href="/document/SDN_exp_2.pdf">XJTU-SDN-EXP-2</a></li>
+  <li><a href="https://www.sdnlab.com/16859.html">Ryu:网络时延探测应用</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Link_Layer_Discovery_Protocol">Wikipedia:Link Layer Discovery Protocol</a></li>
+  <li><a href="https://ryu.readthedocs.io/en/latest/getting_started.html">Ryu 4.34 documentation</a></li>
+</ul>
+
+
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>
