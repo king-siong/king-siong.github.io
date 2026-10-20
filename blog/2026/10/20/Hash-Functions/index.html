@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      Hash Functions
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.1 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Hash Functions" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A hash function is a map from a domain $[n]$ to a codomain $[m]$, written as $h: [n]\to [m]$. We want the output to look random. For a fixed function $h$ and a fixed input $x$, the output $h(x)$ is fixed. We therefore introduce randomness by choosing $h$ from a family of hash functions $\mathcal{H}$." />
+<meta name="twitter:description" property="og:description" content="A hash function is a map from a domain $[n]$ to a codomain $[m]$, written as $h: [n]\to [m]$. We want the output to look random. For a fixed function $h$ and a fixed input $x$, the output $h(x)$ is fixed. We therefore introduce randomness by choosing $h$ from a family of hash functions $\mathcal{H}$." />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-10-20T00:00:00+00:00" />
+<meta property="article:modified_time" content="2026-10-20T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Hash Functions" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2026-10-20T00:00:00+00:00","datePublished":"2026-10-20T00:00:00+00:00","description":"A hash function is a map from a domain $[n]$ to a codomain $[m]$, written as $h: [n]\\to [m]$. We want the output to look random. For a fixed function $h$ and a fixed input $x$, the output $h(x)$ is fixed. We therefore introduce randomness by choosing $h$ from a family of hash functions $\\mathcal{H}$.","headline":"Hash Functions","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2026/10/20/Hash-Functions/"},"url":"/blog/2026/10/20/Hash-Functions/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">Hash Functions</div>
+    
+    <p class="post-meta">
+        <time datetime="2026-10-20T00:00:00+00:00">October 20, 2026</time>
+    </p>
+    
+    <p>A hash function is a map from a domain $[n]$ to a codomain $[m]$, written as $h: [n]\to [m]$. We want the output to look random. For a fixed function $h$ and a fixed input $x$, the output $h(x)$ is fixed. We therefore introduce randomness by choosing $h$ from a family of hash functions $\mathcal{H}$.</p>
+
+<p>There are $m^n$ functions from $[n]$ to $[m]$, so representing an arbitrary such function requires $\Omega(n\log_2m)$ bits. In many applications, it suffices that, for any $k$ distinct inputs $x_1,x_2,\ldots,x_k\in [n]$, the outputs $h(x_1),h(x_2),\ldots,h(x_k)$ are independent and uniformly distributed over $[m]$, where $h$ is chosen uniformly from $\mathcal{H}$. Such a family is called $k$-wise independent. Equivalently, assuming $1\leq k\leq n$, we have</p>
+
+\[\Pr_{h\sim\mathcal H}
+    [h(x_1)=y_1,\ldots,h(x_k)=y_k]=m^{-k},\]
+
+<p>for every choice of distinct inputs and every output tuple.</p>
+
+<p>Such a family can be constructed using polynomials over a finite field $F\cong \mathbb{F}_q$ of size $q=m=n$. Specifically, we take</p>
+
+\[\mathcal{H}:=\lbrace f\in F[X]_{&lt;k}\rbrace.\]
+
+<p>Here I’d like to highlight the elegant algebraic structure.</p>
+
+<h1 id="randomness">Randomness</h1>
+
+<p>Fixing any $\alpha\in F$ gives us an evaluation map</p>
+
+\[\begin{align*}
+&amp;\phi_\alpha: \mathcal{H}\to F,\\
+&amp;\phi_\alpha: f\mapsto f(\alpha).
+\end{align*}\]
+
+<p>This is a homomorphism under addition (more precisely, it is a linear transformation). It is surjective because, for any $\beta\in F$, the constant polynomial $f(X)=\beta$ satisfies $f(\alpha)=\beta$. Its kernel is a subspace of $\mathcal{H}$, and each fibre is a coset of this kernel. All $q$ fibres therefore have the same size, so $f(\alpha)$ is uniformly distributed over $F$ when $f$ is chosen uniformly from $\mathcal{H}$.</p>
+
+<h1 id="independence">Independence</h1>
+
+<p>One way to establish independence is to use the full-rank property of the Vandermonde matrix; we leave this as an exercise for the reader.</p>
+
+<p>Fix distinct evaluation points $\alpha_1,\ldots,\alpha_k\in F$. Let us first ask for all the evaluations to be zero. Starting with $H_0=\mathcal{H}$, each new condition selects the kernel of the next evaluation map: $H_i=\ker(\phi_{\alpha_i}\mid_{H_{i-1}})$. We obtain a chain of subspaces:</p>
+
+\[\mathcal{H}=H_0\supseteq H_1\supseteq\cdots\supseteq H_k.\]
+
+<p>At each step, the restricted evaluation map is still surjective<sup id="fnref:surjectivity"><a href="#fn:surjectivity" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>. By the argument from the previous section, it partitions $H_{i-1}$ into $q$ equally sized cosets of $H_i$. Choosing the value zero selects the kernel itself. We are back in a subspace, so the same picture repeats inside it.</p>
+
+<p><img src="/blog/2025/12/15/Hash-Functions/fig0.svg" alt="Successive partitions into equal-sized cosets, selecting H1 and then H2." /></p>
+
+<p>What changes if the prescribed values $\beta_i$ are not all zero? The remaining polynomials now form a translate $f_{i-1}+H_{i-1}$, an affine subspace. Evaluation on this translate simply adds the fixed offset $f_{i-1}(\alpha_i)$ to the linear map on $H_{i-1}$. The fibres are still cosets of $H_i$, all of the same size; fixing the next value selects one of them, giving $f_i+H_i$. The recursive structure is unchanged.</p>
+
+<p>Thus, whether we select the kernel or one of its translates, each successive condition retains a fraction $1/q$ of the remaining polynomials. For any $\beta_1,\ldots,\beta_k\in F$, this gives</p>
+
+\[\Pr_{f\sim\mathcal H}
+    [f(\alpha_1)=\beta_1,\ldots,f(\alpha_k)=\beta_k]
+    =q^{-k}.\]
+
+<hr />
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:surjectivity">
+      <p>The polynomial $\prod_{j&lt;i}(X-\alpha_j)$ has degree $i-1&lt;k$, belongs to $H_{i-1}$, and is nonzero at $\alpha_i$. Its scalar multiples therefore attain every value in $F$ at $\alpha_i$. For $i=1$, the empty product is $1$. <a href="#fnref:surjectivity" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+    
+    
+    
+    <p class="post-history">
+        <time datetime="2025-12-15">Started December 15, 2025</time>
+         &middot; 
+        <time datetime="2026-10-20">Last updated October 20, 2026</time>
+    </p>
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>
+    
+      Euclidean Algorithm: A Review
+    
+  </title>
+
+  <!-- Begin Jekyll SEO tag v2.9.1 -->
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Euclidean Algorithm: A Review" />
+<meta name="author" content="ysopd" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The whole post was completed on Oct 12, 2026. I have to say it is easy to come up with a good idea or something interesting… But it is hard (at least for me) to finish the work on time and do it well. This post is now done because I pushed myself to finish it, with the help of AI to polish the writing and correct errors." />
+<meta name="twitter:description" property="og:description" content="The whole post was completed on Oct 12, 2026. I have to say it is easy to come up with a good idea or something interesting… But it is hard (at least for me) to finish the work on time and do it well. This post is now done because I pushed myself to finish it, with the help of AI to polish the writing and correct errors." />
+<meta property="og:site_name" content="Seesaw" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-08-24T00:00:00+00:00" />
+<meta property="article:modified_time" content="2025-08-24T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Euclidean Algorithm: A Review" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"ysopd"},"dateModified":"2025-08-24T00:00:00+00:00","datePublished":"2025-08-24T00:00:00+00:00","description":"The whole post was completed on Oct 12, 2026. I have to say it is easy to come up with a good idea or something interesting… But it is hard (at least for me) to finish the work on time and do it well. This post is now done because I pushed myself to finish it, with the help of AI to polish the writing and correct errors.","headline":"Euclidean Algorithm: A Review","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2025/08/24/Euclidean-Alg/"},"url":"/blog/2025/08/24/Euclidean-Alg/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <link rel="stylesheet" href="/assets/css/main.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Noto+Color+Emoji&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans+TC:wght@100..900&family=Noto+Serif+SC:wght@200..900&family=Noto+Serif+TC&display=swap" rel="stylesheet">
+
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-gb-web@latest/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-regular/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-web@latest/lxgwwenkaitc-light/result.css" /> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css" /> -->
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+        <div class="w">
+    <p class="back-to-blog">
+        <!-- <a href="/blog/">Back to Blog</a> -->
+        <a href="/">Back to Blog</a>
+    </p>
+    <div class="art-title">Euclidean Algorithm: A Review</div>
+    
+    <p class="post-meta">
+        <time datetime="2025-08-24T00:00:00+00:00">August 24, 2025</time>
+    </p>
+    
+    <p>The whole post was completed on Oct 12, 2026. I have to say it is easy to come up with a good idea or something interesting… But it is hard (at least for me) to finish the work on time and do it well. This post is now done because I pushed myself to finish it, with the help of AI to polish the writing and correct errors.</p>
+
+<h1 id="bézouts-identity-through-the-lens-of-algebra">Bézout’s Identity through the Lens of Algebra</h1>
+
+<div class="theorem">
+    <div class="thm">
+        Let $a, b$ be 2 positive integers, and denote by $d$ their greatest common divisor, then there exist 2 integers $s,t\in\mathbb{Z}$ such that $as+bt=d$.
+    </div>
+</div>
+
+<div class="theorem">
+    <div class="lemma">
+        Every subgroup $H$ of $(\mathbb{Z}, +)$ is of the form $n\mathbb{Z}$ for some $n \geq 0$.
+    </div>
+</div>
+
+<div class="theorem">
+    <div class="proof">
+        We can see $a\mathbb{Z}+b\mathbb{Z}=\left\lbrace as+bt:s,t\in \mathbb{Z}\right\rbrace$ is a subgroup generated by $a$ and $b$, thus there exists a positive integer $d$ such that $a\mathbb{Z}+b\mathbb{Z}=d\mathbb{Z}$. This implies that there exist $s,t\in\mathbb{Z}$ such that $as+bt=d$. Moreover, since $a\in a\mathbb{Z}+b\mathbb{Z}=d\mathbb{Z}$, $d\mid a$. Similarly, $d\mid b$, which means $d$ is a common divisor of $a$ and $b$.<br />
+        We next show that $d=\gcd(a,b)$. Indeed, if an integer $e$ divides both $a$ and $b$, then it also divides every linear combination $as+bt$, and in particular $d$. Thus $e \mid d$, $e\leq d$, showing that $d$ is the greatest common divisor.
+    </div>
+</div>
+
+<p>From the above proof, we can also see that for any positive integer $e$, if $e\mid a$ and $e\mid b$, then $e\mid \gcd(a,b)$.</p>
+
+<h1 id="euclidean-algorithm">Euclidean Algorithm</h1>
+
+<p>The Euclidean algorithm is a well-known method for finding the greatest common divisor of 2 given integers. Its underlying idea is simple. Since $\gcd(a, b)=\gcd(a - b, b)$, we can repeatedly replace a number by its remainder after division by the other. By performing this process until the remainder becomes 0, the last nonzero remainder is the GCD of $a$ and $b$. More specifically, we apply the division algorithm repeatedly<sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>:</p>
+
+\[\begin{align*}
+&amp;a=q_1 b + r_1\\
+&amp;b=q_2 r_1 + r_2\\
+&amp;r_1=q_3 r_2 + r_3\\
+&amp;\vdots\\
+&amp;r_{n-2}=q_n r_{n-1} + r_n (=0).
+\end{align*}\]
+
+<p>When this process terminates, $r_{n-1}$ is $\gcd(a,b)$. Now let’s analyze the time complexity of this algorithm. In each iteration, we have 2 integers $r_{i-2}$ and $r_{i-1}$, and we compute</p>
+
+\[r_i=r_{i-2}-q_ir_{i-1}.\]
+
+<p>If $r_{i-1}&gt; \tfrac{r_{i-2}}{2}$, $r_{i}&lt; \tfrac{r_{i-2}}{2}$ obviously; otherwise, since $r_i&lt;r_{i-1}$, we also have $r_i&lt;\tfrac{r_{i-2}}{2}$. Therefore, the remainder roughly halves at each iteration, and the algorithm terminates after $O(\log a)$ iterations.</p>
+
+<h2 id="extended-euclidean-algorithm">Extended Euclidean Algorithm</h2>
+
+<p>By Bézout’s identity, there exist $x,y\in\mathbb{Z}$ such that $ax+by=\gcd(a,b)=d$, and the extended Euclidean algorithm finds such integers. We can approach this recursively. Recall that $\gcd(a,b)=\gcd(b,a\pmod{b})$. Now suppose that $x’,y’$ satisfy $bx’+(a\pmod{b})y’=d$. Substituting the expression for the remainder gives</p>
+
+\[bx'+(a-\lfloor a/b\rfloor\cdot b)y'=d\Leftrightarrow ay'+b(x'-\lfloor a/b\rfloor y')=d.\]
+
+<p>Comparing coefficients, we obtain $x=y’$ and $y=x’-\lfloor a/b\rfloor y’$. The recursion terminates just as in the original Euclidean algorithm, when $b=0$. In this case, $a=d$ so we can easily take $x=1,y=0$. The pseudocode is as follows:</p>
+
+\[\begin{array}{l}
+\textbf{ExtendedGCD}(a,b):\\
+\quad \textbf{if } b=0:\; \textbf{return } (a,1,0)\\
+\quad (d,x,y) \leftarrow \operatorname{ExtendedGCD}(b,a\bmod b)\\
+\quad \textbf{return } (d,y,x-\lfloor a/b\rfloor y)
+\end{array}\]
+
+<p>You can find this explanation everywhere on the Internet, but I want to go a little further here. Consider the $i$th division we apply: $r_{i-2}=r_{i-1}\cdot q_{i}+r_{i}$, which says $r_{i}=-q_{i}r_{i-1}+r_{i-2}$. Then</p>
+
+\[\begin{pmatrix}
+r_{i}\\
+r_{i-1}
+\end{pmatrix}=
+\begin{pmatrix}
+-q_{i}&amp;1\\
+1&amp;0
+\end{pmatrix}
+\begin{pmatrix}
+r_{i-1}\\
+r_{i-2}
+\end{pmatrix}.\]
+
+<p>Let $M_{q}$ denote the matrix</p>
+
+\[\begin{pmatrix}
+-q&amp;1\\
+1&amp;0
+\end{pmatrix}.\]
+
+<p>Set $r_0:=b,r_{-1}:=a$. Then</p>
+
+\[\begin{pmatrix}
+0\\
+d
+\end{pmatrix}=
+\begin{pmatrix}
+0\\
+r_{n-1}
+\end{pmatrix}=
+M_{q_n}M_{q_{n-1}}\ldots M_{q_1}
+\begin{pmatrix}
+b\\
+a
+\end{pmatrix}=
+M_{q_n}M_{q_{n-1}}\ldots M_{q_1}
+\begin{pmatrix}
+r_0\\
+r_{-1}
+\end{pmatrix}.\]
+
+<h3 id="from-left-to-right">From Left to Right</h3>
+
+<p>To see what we have done in the above pseudocode, let’s look at an intermediate stage of the recursion:</p>
+
+\[\begin{pmatrix}
+0\\
+d
+\end{pmatrix}=
+M_{q_n}M_{q_{n-1}}\ldots M_{q_{i+1}}
+\begin{pmatrix}
+r_{i}\\
+r_{i-1}
+\end{pmatrix}.\]
+
+<p>Let $N^{(i+1)}:=M_{q_n}M_{q_{n-1}}\ldots M_{q_{i+1}}$, with the empty product $N^{(n+1)}:=I$. Then $N_{22}^{(i+1)}r_{i-1}+N_{21}^{(i+1)}r_i=d$. Extending the product backward by one division step gives</p>
+
+\[N^{(i)}=N^{(i+1)}M_{q_i}.\]
+
+<p>At this step, the current call has arguments $(r_{i-2},r_{i-1})$, and the recursive call has arguments $(r_{i-1},r_i)$. Their respective coefficients satisfy</p>
+
+\[\underbrace{x r_{i-2}+y r_{i-1}=d}_{\text{current call}},
+\qquad
+\underbrace{x'r_{i-1}+y'r_i=d}_{\text{recursive call}}.\]
+
+<p>Because our remainder vectors list the arguments in reverse order, the bottom rows of $N^{(i)}$ and $N^{(i+1)}$ are $(y,x)$ and $(y’,x’)$, respectively. Thus</p>
+
+\[\underbrace{
+\begin{pmatrix}
+* &amp; *\\
+y &amp; x
+\end{pmatrix}}_{N^{(i)}}
+=
+\underbrace{
+\begin{pmatrix}
+* &amp; *\\
+y' &amp; x'
+\end{pmatrix}}_{N^{(i+1)}}
+\underbrace{
+\begin{pmatrix}
+-q_i &amp; 1\\
+1 &amp; 0
+\end{pmatrix}}_{M_{q_i}}
+=
+\begin{pmatrix}
+* &amp; *\\
+x'-q_i y' &amp; y'
+\end{pmatrix}.\]
+
+<p>Reading off the bottom row gives $x=y’$ and $y=x’-q_i y’$. Since $q_i=\lfloor r_{i-2}/r_{i-1}\rfloor$, this is exactly the update in the pseudocode, with $a=r_{i-2}$ and $b=r_{i-1}$ at the current call.</p>
+
+<p>Another way to see this is through a change-of-coordinates analogy. Think of $(y,x)$ as a pair of coordinates representing $d=yr_{i-1}+xr_{i-2}$ relative to the ordered pair $(r_{i-1},r_{i-2})$. Since $M_{q_i}(r_{i-1},r_{i-2})^{\mathsf T}=(r_i,r_{i-1})^{\mathsf T}$, we can transfer coefficients $(y’,x’)$ for the new pair back to the old pair by setting $(y,x)=(y’,x’)M_{q_i}$. The coefficients change while the represented integer $d$ stays the same.</p>
+
+<h3 id="from-right-to-left">From Right to Left</h3>
+
+<p>In the previous discussion, we traced the coefficients backward as the recursion unwound. Now let’s compute them forward, alongside the remainders. Every remainder $r_i$, including $d$, can be written as an integer linear combination $r_i=as_i+bt_i$. Starting from $r_{-1}=a$ and $r_0=b$, set</p>
+
+\[(s_{-1},t_{-1})=(1,0),\qquad (s_0,t_0)=(0,1).\]
+
+<p>Substituting these representations into our matrix recurrence gives</p>
+
+\[\begin{pmatrix}
+as_{i}+bt_{i}\\
+as_{i-1}+bt_{i-1}
+\end{pmatrix}=
+M_{q_{i}}
+\begin{pmatrix}
+as_{i-1}+bt_{i-1}\\
+as_{i-2}+bt_{i-2}
+\end{pmatrix}.\]
+
+<p>We now define the subsequent coefficients recursively by</p>
+
+\[\begin{pmatrix}
+s_{i}\\
+s_{i-1}
+\end{pmatrix}=
+M_{q_{i}}
+\begin{pmatrix}
+s_{i-1}\\
+s_{i-2}
+\end{pmatrix},\qquad
+\begin{pmatrix}
+t_{i}\\
+t_{i-1}
+\end{pmatrix}=
+M_{q_{i}}
+\begin{pmatrix}
+t_{i-1}\\
+t_{i-2}
+\end{pmatrix}.\]
+
+<p>Thus the remainders and both coefficient sequences follow the same matrix recurrence. We can combine the three updates into a single equation:</p>
+
+\[\begin{pmatrix}
+r_{i}&amp;s_{i}&amp;t_{i}\\
+r_{i-1}&amp;s_{i-1}&amp;t_{i-1}
+\end{pmatrix}=
+M_{q_{i}}
+\begin{pmatrix}
+r_{i-1}&amp;s_{i-1}&amp;t_{i-1}\\
+r_{i-2}&amp;s_{i-2}&amp;t_{i-2}
+\end{pmatrix}.\]
+
+<p>This recurrence gives several useful identities, which I leave as exercises.</p>
+
+<div class="theorem">
+    <div class="exercise">
+        Show that
+        $$
+        s_it_{i-1}-t_is_{i-1}=(-1)^{i+1},\qquad 0\le i\le n.
+        $$
+    </div>
+</div>
+
+<div class="theorem">
+    <div class="exercise">
+        Show that
+        $$
+        r_is_{i-1}-s_ir_{i-1}=(-1)^{i}b,\qquad 0\le i\le n.
+        $$
+    </div>
+</div>
+
+<div class="theorem">
+    <div class="exercise">
+        Show that
+        $$
+        r_it_{i-1}-t_ir_{i-1}=(-1)^{i+1}a,\qquad 0\le i\le n.
+        $$
+    </div>
+</div>
+
+<p><strong>Hint</strong>: Try using determinants.</p>
+
+<div class="theorem">
+    <div class="exercise">
+        Show that
+        $$
+        \gcd(s_i,t_i)=1,\qquad 0\le i\le n.
+        $$
+    </div>
+</div>
+
+<p><strong>Hint</strong>: Try using Bézout’s Identity and its relationship with GCD.</p>
+
+<h2 id="euclidean-algorithm-for-polynomials-over-fields">Euclidean Algorithm for Polynomials over Fields</h2>
+
+<p>The Euclidean algorithm also applies to $F[X]$, where $F$ is a field. We use polynomial division with remainder: for $f,g\in F[X]$ with $g\ne0$, there are unique polynomials $Q,R\in F[X]$ such that</p>
+
+\[f=Qg+R,\qquad R=0\ \text{or}\ \deg R&lt;\deg g.\]
+
+<p>Repeated division terminates because the degrees of the nonzero remainders strictly decrease. The last nonzero remainder is a GCD of the input polynomials; dividing it by its leading coefficient gives the unique monic GCD. Let $N=\max\lbrace\deg f,\deg g\rbrace$ be the larger of the two input degrees. For $N\ge1$, the classical algorithm uses $O(N^2)$ field operations with ordinary polynomial long division.</p>
+
+<hr />
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1">
+      <p>WLOG, we can assume $a\geq b$. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+    
+    
+    
+    <p class="post-history">
+        
+        
+        <time datetime="2026-10-12">Last updated October 12, 2026</time>
+    </p>
+    
+</div>
+
+    </main>
+
+    
+    </body>
+</html>
